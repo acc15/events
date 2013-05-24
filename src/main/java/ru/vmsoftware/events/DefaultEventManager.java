@@ -1,6 +1,8 @@
 package ru.vmsoftware.events;
 
 import ru.vmsoftware.events.filters.Filter;
+import ru.vmsoftware.events.filters.Filters;
+import ru.vmsoftware.events.filters.GenericEventFilter;
 import ru.vmsoftware.events.linked.CustomWeakLinkedList;
 import ru.vmsoftware.events.linked.WeakLinkedList;
 import ru.vmsoftware.events.providers.Provider;
@@ -19,6 +21,12 @@ class DefaultEventManager implements EventManager {
     @Override
     public Registrar createRegistrar() {
         return new Registrar() {
+
+            @Override
+            public void listen(Object emitter, Object type, EventListener<?> listener) {
+                // TODO implement..
+
+            }
 
             @Override
             public <T> void listen(Filter<T> filter, EventListener<T> listener) {
@@ -56,19 +64,35 @@ class DefaultEventManager implements EventManager {
     }
 
     @Override
+    public void listen(Object emitter, Object type, EventListener<?> listener) {
+        // TODO implement..
+
+    }
+
+    @Override
     public <T> void listen(Filter<T> filter, EventListener<T> listener) {
         createEntry(filter, listener);
     }
 
     @Override
+    public boolean emit(Object emitter, Object type) {
+        // TODO implement..
+        return false;
+    }
+
+    @Override
+    public boolean emit(Object emitter, Object type, Object data) {
+        // TODO implement..
+        return false;
+    }
+
+    @Override
     @SuppressWarnings("unchecked")
     public boolean emit(Object event) {
-
         ensureNotNull("event can't be null", event);
-
         for (ListenerEntry e : list) {
-            final Filter<Object> emitterFilter = (Filter<Object>) e.filterProvider.get();
-            if (!emitterFilter.filter(event)) {
+            final Filter<Object> filter = (Filter<Object>) e.filterProvider.get();
+            if (!filter.filter(event)) {
                 continue;
             }
 
@@ -128,6 +152,20 @@ class DefaultEventManager implements EventManager {
 
         Provider<Filter<?>> filterProvider;
         Provider<EventListener<?>> listenerProvider;
+    }
+
+    Filter<Object> createGenericFilter(Object emitter, Object type) {
+        return new GenericEventFilter(getFilter(emitter), getFilter(type));
+    }
+
+    Filter<?> getFilter(Object obj) {
+        if (obj instanceof Filter<?>) {
+            return (Filter<?>) obj;
+        } else if (obj instanceof Class<?>) {
+            return Filters.instanceOf((Class<?>)obj);
+        } else {
+            return Filters.sameInstance(obj);
+        }
     }
 
     boolean matchListener(EventListener<?> l, Object listener) {

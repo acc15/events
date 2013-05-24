@@ -3,10 +3,7 @@ package ru.vmsoftware.events;
 import org.fest.assertions.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.*;
 import ru.vmsoftware.events.adapters.MethodAdapter;
 import ru.vmsoftware.events.adapters.SimpleAdapter;
 import ru.vmsoftware.events.annotations.ManagedBy;
@@ -16,6 +13,7 @@ import ru.vmsoftware.events.filters.Filters;
 import ru.vmsoftware.events.references.ManagementType;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author Vyacheslav Mayorov
@@ -24,21 +22,36 @@ import static org.fest.assertions.api.Assertions.assertThat;
 public class DefaultEventManagerTest {
 
     @Mock
-    private EventListener<Object,Object,Object> listener;
+    private EventListener<Object> listener;
 
     @Mock
-    private EventListener<Object,Object,Object> listener2;
+    private EventListener<Object> listener2;
 
+    
     private Object eventType = new Object();
-    private Object data = new Object();
+    private Object eventData = new Object();
+    private GenericEvent<Object,Object,Object> event =
+            new GenericEvent<Object, Object, Object>(this, eventType, eventData);
+
+
+    private ArgumentCaptor<Object> eventCaptor = ArgumentCaptor.forClass(Object.class);
+    private ArgumentCaptor<Object> eventCaptor2 = ArgumentCaptor.forClass(Object.class);
 
     private DefaultEventManager manager = new DefaultEventManager();
+
+    private void assertGenericEvent(Object event, Object emitter, Object type, Object data) {
+        assertThat(event).isInstanceOf(GenericEvent.class);
+        final GenericEvent<?,?,?> genericEvent = (GenericEvent<?,?,?>) event;
+        assertThat(genericEvent.getEmitter()).isSameAs(emitter);
+        assertThat(genericEvent.getType()).isSameAs(type);
+        assertThat(genericEvent.getData()).isSameAs(data);
+    }
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        Mockito.when(listener.onEvent(this, eventType, null)).thenReturn(true);
-        Mockito.when(listener2.onEvent(this, eventType, null)).thenReturn(true);
+        Mockito.when(listener.onEvent(eventCaptor.capture())).thenReturn(true);
+        Mockito.when(listener2.onEvent(eventCaptor2.capture())).thenReturn(true);
     }
 
     @Test(expected = NullPointerException.class)
@@ -57,13 +70,28 @@ public class DefaultEventManagerTest {
     }
 
     @Test(expected = NullPointerException.class)
+    public void testListenDoesntAcceptNullPointers4() throws Exception {
+        manager.listen(null, listener);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testListenDoesntAcceptNullPointers5() throws Exception {
+        manager.listen(Filters.any(), null);
+    }
+
+    @Test(expected = NullPointerException.class)
     public void testEmitDoesntAcceptNullPointers() throws Exception {
-        manager.emit(null, eventType, data);
+        manager.emit(null, eventType, eventData);
     }
 
     @Test(expected = NullPointerException.class)
     public void testEmitDoesntAcceptNullPointers2() throws Exception {
-        manager.emit(this, null, data);
+        manager.emit(this, null, eventData);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testEmitDoesntAcceptNullPointers3() throws Exception {
+        manager.emit(null);
     }
 
     @Test
@@ -72,25 +100,32 @@ public class DefaultEventManagerTest {
     }
 
     @Test
-    public void testEmittedEventsDeliveredCorrectly() throws Exception {
+    public void testEmittedEventDeliveredCorrectly() throws Exception {
         manager.listen(this, Filters.any(), listener);
-        manager.emit(this, eventType, data);
-        Mockito.verify(listener).onEvent(this, eventType, data);
+        manager.emit(event);
+        verify(listener).onEvent(event);
+    }
+
+    @Test
+    public void testEmittedEventDeliveredCorrectly2() throws Exception {
+        manager.listen(this, Filters.any(), listener);
+        manager.emit(this, eventType, eventData);
+        assertGenericEvent(eventCaptor.getValue(), this, eventType, eventData);
     }
 
     @Test
     public void testEmitShouldCallListenersRegisteredWithInterfaceOrParentClass() throws Exception {
         manager.listen(CharSequence.class, Filters.any(), listener);
         final String emitter = "abc";
-        manager.emit(emitter, eventType, data);
-        Mockito.verify(listener).onEvent(emitter, eventType, data);
+        manager.emit(emitter, eventType, eventData);
+        verify(listener).onEvent(event);
     }
 
     @Test
     public void testEmittedEventsDeliveredIfListenerAddForEmitterClass() throws Exception {
         manager.listen(DefaultEventManagerTest.class, Filters.any(), listener);
-        manager.emit(this, eventType, data);
-        Mockito.verify(listener).onEvent(this, eventType, data);
+        manager.emit(this, eventType, eventData);
+        verify(listener).onEvent(event);
     }
 
     @Test
@@ -109,20 +144,20 @@ public class DefaultEventManagerTest {
 
     @Test
     public void testManagerBreaksExecutionIfSomeoneListenerReturnsFalse() throws Exception {
-        Mockito.when(listener.onEvent(this, eventType, data)).thenReturn(false);
+        Mockito.when(listener.onEvent(event)).thenReturn(false);
 
         manager.listen(this, Filters.any(), listener);
         manager.listen(this, Filters.any(), listener2);
-        manager.emit(this, eventType, data);
+        manager.emit(this, eventType, eventData);
 
-        Mockito.verify(listener).onEvent(this, eventType, data);
-        Mockito.verify(listener2, Mockito.never()).onEvent(Matchers.any(), Matchers.any(), Matchers.any());
+        verify(listener).onEvent(event);
+        verify(listener2, Mockito.never()).onEvent(Matchers.any());
     }
 
     @ManagedBy(ManagementType.CONTAINER)
     private static class ManagedContainerListener extends SimpleAdapter {
         @Override
-        public boolean onEvent(Object emitter, Object type, Object data) {
+        public boolean onEvent(Object event) {
             return true;
         }
     }
@@ -143,7 +178,7 @@ public class DefaultEventManagerTest {
     @ManagedBy(ManagementType.MANUAL)
     private static class ManualManagedListener extends SimpleAdapter {
         @Override
-        public boolean onEvent(Object emitter, Object type, Object data) {
+        public boolean onEvent(Object event) {
             return true;
         }
     }
@@ -180,9 +215,9 @@ public class DefaultEventManagerTest {
 
     @Test
     public void testManagerHoldsListenerByStrongRef() throws Exception {
-        EventListener<Object,Object,Object> l = new SimpleAdapter<Object, Object, Object>() {
+        EventListener<Object> l = new SimpleAdapter<Object>() {
             @Override
-            public boolean onEvent(Object emitter, Object type, Object data) {
+            public boolean onEvent(Object event) {
                 return true;
             }
         };
@@ -314,20 +349,20 @@ public class DefaultEventManagerTest {
 
     private void verifyOnlyFirstCalled() {
         manager.emit(this, eventType, null);
-        Mockito.verify(listener).onEvent(this, eventType, null);
-        Mockito.verify(listener2, Mockito.never()).onEvent(Matchers.any(), Matchers.any(), Matchers.any());
+        verify(listener).onEvent(event);
+        verify(listener2, Mockito.never()).onEvent(Matchers.any());
     }
 
     private void verifyBothCalled() {
         manager.emit(this, eventType, null);
-        Mockito.verify(listener).onEvent(this, eventType, null);
-        Mockito.verify(listener2).onEvent(this, eventType, null);
+        verify(listener).onEvent(event);
+        verify(listener2).onEvent(event);
     }
 
     private void verifyNoneCalled() {
         manager.emit(this, eventType, null);
-        Mockito.verify(listener, Mockito.never()).onEvent(Matchers.any(), Matchers.any(), Matchers.any());
-        Mockito.verify(listener2, Mockito.never()).onEvent(Matchers.any(), Matchers.any(), Matchers.any());
+        verify(listener, Mockito.never()).onEvent(Matchers.any());
+        verify(listener2, Mockito.never()).onEvent(Matchers.any());
     }
 
 

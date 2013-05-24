@@ -4,12 +4,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import ru.vmsoftware.events.adapters.SimpleAdapter;
 import ru.vmsoftware.events.filters.Filter;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
 
 
 /**
@@ -31,9 +31,9 @@ public class EventDelegatesTest {
             return true;
         }
     };
-    private EventListener<Object> listener = new SimpleAdapter<Object, Object, Object>() {
+    private EventListener<Object> listener = new SimpleAdapter<Object>() {
         @Override
-        public boolean onEvent(Object emitter, Object type, Object data) {
+        public boolean onEvent(Object event) {
             return true;
         }
     };
@@ -57,19 +57,31 @@ public class EventDelegatesTest {
 
     @Test
     public void testEmitCorrectlyDelegatesCall() throws Exception {
-        Events.emit(emitter, type);
-        Mockito.verify(eventManager).emit(emitter, type, null);
+        Events.emit(data);
+        verify(eventManager).emit(data);
     }
 
     @Test
     public void testEmit2CorrectlyDelegatesCall() throws Exception {
+        Events.emit(emitter, type);
+        verify(eventManager).emit(emitter, type);
+    }
+
+    @Test
+    public void testEmit3CorrectlyDelegatesCall() throws Exception {
         Events.emit(emitter, type, data);
-        Mockito.verify(eventManager).emit(emitter, type, data);
+        verify(eventManager).emit(emitter, type, data);
+    }
+
+    @Test
+    public void testListenCorrectlyDelegatesCall() throws Exception {
+        Events.listen(filter, listener);
+        verify(eventManager).listen(filter, listener);
     }
 
     @Test
     public void testListenFilterCorrectlyDelegatesCall() throws Exception {
         Events.listen(emitter, filter, listener);
-        Mockito.verify(eventManager).listen(emitter, filter, listener);
+        verify(eventManager).listen(emitter, filter, listener);
     }
 }
