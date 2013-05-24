@@ -31,7 +31,7 @@ public class EventDelegatesTest {
             return true;
         }
     };
-    private EventListener<Object, Object, Object> listener = new SimpleAdapter<Object, Object, Object>() {
+    private EventListener<Object> listener = new SimpleAdapter<Object, Object, Object>() {
         @Override
         public boolean onEvent(Object emitter, Object type, Object data) {
             return true;

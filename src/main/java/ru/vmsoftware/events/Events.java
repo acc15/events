@@ -91,26 +91,42 @@ public class Events {
     }
 
     /**
-     * Shorthand for {@code Events.getManager().emit(emitter, event, null)}
-     * @see EventManager#emit(Object, Object, Object)
+     * Shorthand for {@code Events.getManager().emit(event)}
+     * @see EventManager#emit(Object)
      */
-    public static boolean emit(Object emitter, Object event) {
-        return getManager().emit(emitter, event, null);
+    public static boolean emit(Object event) {
+        return getManager().emit(event);
     }
 
     /**
-     * Shorthand for {@code Events.getManager().emit(emitter, event, data)}
-     * @see EventManager#emit(Object, Object, Object)
+     * Shorthand for {@code Events.getManager().emit(new GenericEvent(emitter, event))}
+     * @see EventManager#emit(Object)
      */
-    public static boolean emit(Object emitter, Object event, Object data) {
-        return getManager().emit(emitter, event, data);
+    public static <E,T> boolean emit(E emitter, T event) {
+        return getManager().emit(new GenericEvent<E,T,Object>(emitter, event));
+    }
+
+    /**
+     * Shorthand for {@code Events.getManager().emit(new GenericEvent(emitter, event, data))}
+     * @see EventManager#emit(Object)
+     */
+    public static <E,T,D> boolean emit(E emitter, T event, D data) {
+        return getManager().emit(new GenericEvent<E,T,D>(emitter, event, data));
+    }
+
+    /**
+     * Shorthand for {@code Events.getManager().listen(filter, listener)}
+     * @see EventManager#listen(Filter, EventListener)
+     */
+    public static <T> void listen(Filter<T> filter, EventListener<T> listener) {
+        getManager().listen(filter, listener);
     }
 
     /**
      * Shorthand for {@code Events.getManager().listen(emitter, event, listener)}
      * @see EventManager#listen(Object, Object, EventListener)
      */
-    public static void listen(Object emitter, Object event, EventListener<?,?,?> listener) {
+    public static void listen(Object emitter, Object event, EventListener<?> listener) {
         getManager().listen(emitter, event, listener);
     }
 
@@ -166,7 +182,7 @@ public class Events {
 
         final Filter<Object> eventFilter = getFilterByClassAndPattern(listener.eventType(), listener.event());
         final MethodAdapter methodAdapter = new MethodAdapter(obj, method);
-        registrar.listen(emitter, eventFilter, methodAdapter);
+        registrar.listen(eventFilter, methodAdapter);
     }
 
     static EventManager manager = new DefaultEventManager();

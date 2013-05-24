@@ -1,5 +1,7 @@
 package ru.vmsoftware.events;
 
+import ru.vmsoftware.events.filters.Filter;
+
 /**
 * @author Vyacheslav Mayorov
 * @since 2013-30-04
@@ -8,11 +10,18 @@ public interface Registrar {
 
     /**
      * Registers listener.
-     * @param emitter event emitter
-     * @param event event type
+     * @param filter event filter
      * @param listener listener
      */
-    void listen(Object emitter, Object event, EventListener<?, ?, ?> listener);
+    <T> void listen(Filter<T> filter, EventListener<T> listener);
+
+    /**
+     * Registers listener.
+     * @param emitter emitter
+     * @param type type
+     * @param listener listener
+     */
+    void listen(Object emitter, Object type, EventListener<?> listener);
 
     /**
      * Removes specified listener from registrar

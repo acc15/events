@@ -4,17 +4,15 @@ package ru.vmsoftware.events;
  * @author Vyacheslav Mayorov
  * @since 2013-12-04
  */
-public interface EventListener<E, T, D> {
+public interface EventListener<T> {
 
     /**
-     * Called when {@link EventManager#emit(Object, Object, Object)} is called
-     * @param emitter event emitter
-     * @param type event type
-     * @param data event data
+     * Called when {@link EventManager#emit(Object)} is called
+     * @param event emitted event
      * @return <code>true</code> if event handling should be continued,
      *         <code>false</code> if event handling should be stopped (i.e. next listener will not receive this event)
      */
-    boolean onEvent(E emitter, T type, D data);
+    boolean onEvent(T event);
 
     /**
      * <p>Checks whether specified {@code obj} is counterpart of this listener.</p>
