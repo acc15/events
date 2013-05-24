@@ -1,15 +1,14 @@
 package ru.vmsoftware.events;
 
+import ru.vmsoftware.events.filters.Filter;
+import ru.vmsoftware.events.filters.Filters;
 import ru.vmsoftware.events.linked.CustomWeakLinkedList;
 import ru.vmsoftware.events.linked.WeakLinkedList;
-import ru.vmsoftware.events.filters.InstanceOfFilter;
-import ru.vmsoftware.events.filters.SameInstanceFilter;
+import ru.vmsoftware.events.providers.Provider;
+import ru.vmsoftware.events.providers.StrongProvider;
 import ru.vmsoftware.events.references.ContainerManaged;
 import ru.vmsoftware.events.references.ManagementType;
 import ru.vmsoftware.events.references.ReferenceContainer;
-import ru.vmsoftware.events.providers.Provider;
-import ru.vmsoftware.events.providers.StrongProvider;
-import ru.vmsoftware.events.filters.Filter;
 
 import java.util.Iterator;
 
@@ -154,9 +153,9 @@ class DefaultEventManager implements EventManager {
         if (obj instanceof Filter<?>) {
             return (Filter<?>) obj;
         } else if (obj instanceof Class<?>) {
-            return new InstanceOfFilter<Object>((Class<?>)obj);
+            return Filters.instanceOf((Class<?>)obj);
         } else {
-            return new SameInstanceFilter<Object>(obj);
+            return Filters.sameInstance(obj);
         }
     }
 

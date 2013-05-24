@@ -10,8 +10,9 @@ import org.mockito.MockitoAnnotations;
 import ru.vmsoftware.events.adapters.MethodAdapter;
 import ru.vmsoftware.events.adapters.SimpleAdapter;
 import ru.vmsoftware.events.annotations.ManagedBy;
-import ru.vmsoftware.events.filters.AnyFilter;
 import ru.vmsoftware.events.filters.EqualsFilter;
+import ru.vmsoftware.events.filters.Filter;
+import ru.vmsoftware.events.filters.Filters;
 import ru.vmsoftware.events.references.ManagementType;
 
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -42,7 +43,7 @@ public class DefaultEventManagerTest {
 
     @Test(expected = NullPointerException.class)
     public void testListenDoesntAcceptNullPointers() throws Exception {
-        manager.listen(null, AnyFilter.getInstance(), listener);
+        manager.listen(null, Filters.any(), listener);
     }
 
     @Test(expected = NullPointerException.class)
@@ -52,7 +53,7 @@ public class DefaultEventManagerTest {
 
     @Test(expected = NullPointerException.class)
     public void testListenDoesntAcceptNullPointers3() throws Exception {
-        manager.listen(this, AnyFilter.getInstance(), null);
+        manager.listen(this, Filters.any(), null);
     }
 
     @Test(expected = NullPointerException.class)
@@ -72,14 +73,14 @@ public class DefaultEventManagerTest {
 
     @Test
     public void testEmittedEventsDeliveredCorrectly() throws Exception {
-        manager.listen(this, AnyFilter.getInstance(), listener);
+        manager.listen(this, Filters.any(), listener);
         manager.emit(this, eventType, data);
         Mockito.verify(listener).onEvent(this, eventType, data);
     }
 
     @Test
     public void testEmitShouldCallListenersRegisteredWithInterfaceOrParentClass() throws Exception {
-        manager.listen(CharSequence.class, AnyFilter.getInstance(), listener);
+        manager.listen(CharSequence.class, Filters.any(), listener);
         final String emitter = "abc";
         manager.emit(emitter, eventType, data);
         Mockito.verify(listener).onEvent(emitter, eventType, data);
@@ -87,7 +88,7 @@ public class DefaultEventManagerTest {
 
     @Test
     public void testEmittedEventsDeliveredIfListenerAddForEmitterClass() throws Exception {
-        manager.listen(DefaultEventManagerTest.class, AnyFilter.getInstance(), listener);
+        manager.listen(DefaultEventManagerTest.class, Filters.any(), listener);
         manager.emit(this, eventType, data);
         Mockito.verify(listener).onEvent(this, eventType, data);
     }
@@ -101,8 +102,8 @@ public class DefaultEventManagerTest {
 
     @Test
     public void testManagerDoesntCallListenerIfEmitterNotMatched() throws Exception {
-        manager.listen(this, AnyFilter.getInstance(), listener);
-        manager.listen(AnyFilter.class, AnyFilter.getInstance(), listener2);
+        manager.listen(this, Filters.any(), listener);
+        manager.listen(Filter.class, Filters.any(), listener2);
         verifyOnlyFirstCalled();
     }
 
@@ -110,8 +111,8 @@ public class DefaultEventManagerTest {
     public void testManagerBreaksExecutionIfSomeoneListenerReturnsFalse() throws Exception {
         Mockito.when(listener.onEvent(this, eventType, data)).thenReturn(false);
 
-        manager.listen(this, AnyFilter.getInstance(), listener);
-        manager.listen(this, AnyFilter.getInstance(), listener2);
+        manager.listen(this, Filters.any(), listener);
+        manager.listen(this, Filters.any(), listener2);
         manager.emit(this, eventType, data);
 
         Mockito.verify(listener).onEvent(this, eventType, data);
@@ -129,7 +130,7 @@ public class DefaultEventManagerTest {
     @Test
     public void testManagerCleanupsDataIfListenerIsManagedByContainer() throws Exception {
         ManagedContainerListener l = new ManagedContainerListener();
-        manager.listen(this, AnyFilter.getInstance(), l);
+        manager.listen(this, Filters.any(), l);
         assertThat(manager.isClean()).isFalse();
         l = null;
 
@@ -152,7 +153,7 @@ public class DefaultEventManagerTest {
 
         ManualManagedListener l = new ManualManagedListener();
         final MethodAdapter methodAdapter = new MethodAdapter(l, "onEvent");
-        manager.listen(this, AnyFilter.getInstance(), methodAdapter);
+        manager.listen(this, Filters.any(), methodAdapter);
         l = null;
 
         TestUtils.forceGC();
@@ -166,7 +167,7 @@ public class DefaultEventManagerTest {
     public void testManagerCleanupsDataIfEmitterNoMoreReachableByStrongRef() throws Exception {
 
         byte[] e = new byte[1024];
-        manager.listen(e, AnyFilter.getInstance(), listener);
+        manager.listen(e, Filters.any(), listener);
         assertThat(manager.isClean()).isFalse();
         e = null;
 
@@ -185,7 +186,7 @@ public class DefaultEventManagerTest {
                 return true;
             }
         };
-        manager.listen(this, AnyFilter.getInstance(), l);
+        manager.listen(this, Filters.any(), l);
         assertThat(manager.isClean()).isFalse();
 
         l = null;
@@ -199,8 +200,8 @@ public class DefaultEventManagerTest {
     @Test
     public void testMuteCorrectlyRemovesListener() throws Exception {
 
-        manager.listen(this, AnyFilter.getInstance(), listener);
-        manager.listen(this, AnyFilter.getInstance(), listener2);
+        manager.listen(this, Filters.any(), listener);
+        manager.listen(this, Filters.any(), listener2);
 
         assertThat(manager.isClean()).isFalse();
         manager.mute(listener2);
@@ -213,7 +214,7 @@ public class DefaultEventManagerTest {
 
     @Test
     public void testMuteCorrectlyRemovesByCounterpart() throws Exception {
-        manager.listen(this, AnyFilter.getInstance(), new MethodAdapter(listener, "equals"));
+        manager.listen(this, Filters.any(), new MethodAdapter(listener, "equals"));
         manager.mute(listener);
         assertThat(manager.isClean()).isTrue();
     }
@@ -229,7 +230,7 @@ public class DefaultEventManagerTest {
 
         ManagedContainerListener l = new ManagedContainerListener();
         final Registrar registrar = manager.createRegistrar();
-        registrar.listen(this, AnyFilter.getInstance(), l);
+        registrar.listen(this, Filters.any(), l);
         manager.mute(l);
         l = null;
 
@@ -242,16 +243,16 @@ public class DefaultEventManagerTest {
     @Test
     public void testRegistrarRegisterListeners() throws Exception {
         final Registrar registrar = manager.createRegistrar();
-        registrar.listen(this, AnyFilter.getInstance(), listener);
-        registrar.listen(this, AnyFilter.getInstance(), listener2);
+        registrar.listen(this, Filters.any(), listener);
+        registrar.listen(this, Filters.any(), listener2);
         verifyBothCalled();
     }
 
     @Test
     public void testRegistrarCleanupListeners() throws Exception {
         final Registrar registrar = manager.createRegistrar();
-        registrar.listen(this, AnyFilter.getInstance(), listener);
-        registrar.listen(this, AnyFilter.getInstance(), listener2);
+        registrar.listen(this, Filters.any(), listener);
+        registrar.listen(this, Filters.any(), listener2);
         registrar.cleanup();
         verifyNoneCalled();
     }
@@ -259,8 +260,8 @@ public class DefaultEventManagerTest {
     @Test
     public void testRegistrarRemoveListeners() throws Exception {
         final Registrar registrar = manager.createRegistrar();
-        registrar.listen(this, AnyFilter.getInstance(), listener);
-        registrar.listen(this, AnyFilter.getInstance(), listener2);
+        registrar.listen(this, Filters.any(), listener);
+        registrar.listen(this, Filters.any(), listener2);
         registrar.mute(listener2);
         verifyOnlyFirstCalled();
     }
@@ -268,8 +269,8 @@ public class DefaultEventManagerTest {
     @Test
     public void testRegisterCanRemoveOnlyRegisteredListeners() throws Exception {
         final Registrar registrar = manager.createRegistrar();
-        registrar.listen(this, AnyFilter.getInstance(), listener2);
-        manager.listen(this, AnyFilter.getInstance(), listener);
+        registrar.listen(this, Filters.any(), listener2);
+        manager.listen(this, Filters.any(), listener);
         registrar.mute(listener);
         registrar.mute(listener2);
         verifyOnlyFirstCalled();
@@ -278,8 +279,8 @@ public class DefaultEventManagerTest {
     @Test
     public void testRegistrarCleanupOnlyRegisteredListeners() throws Exception {
         final Registrar registrar = manager.createRegistrar();
-        registrar.listen(this, AnyFilter.getInstance(), listener2);
-        manager.listen(this, AnyFilter.getInstance(), listener);
+        registrar.listen(this, Filters.any(), listener2);
+        manager.listen(this, Filters.any(), listener);
         registrar.cleanup();
         verifyOnlyFirstCalled();
     }
@@ -290,7 +291,7 @@ public class DefaultEventManagerTest {
         Object l = new Object();
 
         final MethodAdapter methodAdapter = new MethodAdapter(l, "hashCode");
-        manager.listen(this, AnyFilter.getInstance(), methodAdapter);
+        manager.listen(this, Filters.any(), methodAdapter);
 
         l = null;
         TestUtils.forceGC();
@@ -302,8 +303,8 @@ public class DefaultEventManagerTest {
     @Test
     public void testCleanupRemovesAllListeners() throws Exception {
 
-        manager.listen(this, AnyFilter.getInstance(), listener);
-        manager.listen(this, AnyFilter.getInstance(), listener2);
+        manager.listen(this, Filters.any(), listener);
+        manager.listen(this, Filters.any(), listener2);
         assertThat(manager.isClean()).isFalse();
 
         manager.cleanup();

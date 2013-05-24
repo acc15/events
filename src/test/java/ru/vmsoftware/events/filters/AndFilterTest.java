@@ -12,7 +12,7 @@ public class AndFilterTest {
     @Test
     public void testFilter() throws Exception {
         final String val = "abc";
-        final Filter<Object> f = new AndFilter<Object>(
+        final Filter<Object> f = Filters.and(
                 new InstanceOfFilter<Object>(String.class),
                 new SameInstanceFilter<Object>(val));
         assertThat(f.filter(val)).isTrue();

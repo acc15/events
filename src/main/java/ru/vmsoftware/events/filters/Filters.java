@@ -9,6 +9,13 @@ import java.util.List;
  */
 public class Filters {
 
+    private static final AnyFilter<Object> ANY_FILTER_INSTANCE = new AnyFilter<Object>();
+
+    @SuppressWarnings("unchecked")
+    public static <T> Filter<T> any() {
+        return (Filter<T>)ANY_FILTER_INSTANCE;
+    }
+
     public static <T> Filter<T> sameInstance(T instance) {
         return new SameInstanceFilter<T>(instance);
     }
@@ -23,7 +30,7 @@ public class Filters {
 
     public static <T> Filter<T> and(List<Filter<T>> filters) {
         if (filters.isEmpty()) {
-            return AnyFilter.getInstance();
+            return any();
         }
         return filters.size() > 1 ? new AndFilter<T>(filters) : filters.get(0);
     }

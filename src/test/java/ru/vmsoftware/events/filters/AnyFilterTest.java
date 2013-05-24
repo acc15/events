@@ -13,7 +13,7 @@ public class AnyFilterTest {
     @Test
     public void testFilter() throws Exception {
 
-        final AnyFilter<String> filter = AnyFilter.getInstance();
+        final AnyFilter<String> filter = new AnyFilter<String>();
         assertThat(filter.filter("abc")).isTrue();
         assertThat(filter.filter("xyz")).isTrue();
 
