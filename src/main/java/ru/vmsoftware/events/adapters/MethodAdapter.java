@@ -102,7 +102,6 @@ public class MethodAdapter implements EventListener<Object>, ContainerManaged {
     private static Method findListenerMethod(Object obj, String methodName) {
 
         final Class<?> type = obj.getClass();
-
         final Method[] methods = type.getDeclaredMethods();
 
         Method foundMethod = null;

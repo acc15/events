@@ -13,6 +13,7 @@ import ru.vmsoftware.events.filters.Filters;
 import ru.vmsoftware.events.references.ManagementType;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -55,42 +56,42 @@ public class DefaultEventManagerTest {
     }
 
     @Test(expected = NullPointerException.class)
-    public void testListenDoesntAcceptNullPointers() throws Exception {
+    public void testListenDoesntAcceptNullPointersForEmitter() throws Exception {
         manager.listen(null, Filters.any(), listener);
     }
 
     @Test(expected = NullPointerException.class)
-    public void testListenDoesntAcceptNullPointers2() throws Exception {
+    public void testListenDoesntAcceptNullPointersForType() throws Exception {
         manager.listen(this, null, listener);
     }
 
     @Test(expected = NullPointerException.class)
-    public void testListenDoesntAcceptNullPointers3() throws Exception {
+    public void testListenDoesntAcceptNullPointersForListener2() throws Exception {
         manager.listen(this, Filters.any(), null);
     }
 
     @Test(expected = NullPointerException.class)
-    public void testListenDoesntAcceptNullPointers4() throws Exception {
+    public void testListenDoesntAcceptNullPointersForFilter() throws Exception {
         manager.listen(null, listener);
     }
 
     @Test(expected = NullPointerException.class)
-    public void testListenDoesntAcceptNullPointers5() throws Exception {
+    public void testListenDoesntAcceptNullPointersForListener() throws Exception {
         manager.listen(Filters.any(), null);
     }
 
     @Test(expected = NullPointerException.class)
-    public void testEmitDoesntAcceptNullPointers() throws Exception {
+    public void testEmitDoesntAcceptNullPointersForEmitter() throws Exception {
         manager.emit(null, eventType, eventData);
     }
 
     @Test(expected = NullPointerException.class)
-    public void testEmitDoesntAcceptNullPointers2() throws Exception {
+    public void testEmitDoesntAcceptNullPointersForType() throws Exception {
         manager.emit(this, null, eventData);
     }
 
     @Test(expected = NullPointerException.class)
-    public void testEmitDoesntAcceptNullPointers3() throws Exception {
+    public void testEmitDoesntAcceptNullPointersForEvent() throws Exception {
         manager.emit(null);
     }
 
@@ -108,7 +109,7 @@ public class DefaultEventManagerTest {
 
     @Test
     public void testEmittedEventDeliveredCorrectly2() throws Exception {
-        manager.listen(this, Filters.any(), listener);
+        manager.listen(Filters.any(), listener);
         manager.emit(this, eventType, eventData);
         assertGenericEvent(eventCaptor.getValue(), this, eventType, eventData);
     }
@@ -151,7 +152,7 @@ public class DefaultEventManagerTest {
         manager.emit(this, eventType, eventData);
 
         verify(listener).onEvent(event);
-        verify(listener2, Mockito.never()).onEvent(Matchers.any());
+        verify(listener2, never()).onEvent(Matchers.any());
     }
 
     @ManagedBy(ManagementType.CONTAINER)
@@ -171,7 +172,7 @@ public class DefaultEventManagerTest {
 
         TestUtils.forceGC();
 
-        manager.emit(Events.NULL, eventType, null);
+        manager.emit(TestUtils.NULL, eventType, null);
         assertThat(manager.isClean()).isTrue();
     }
 
@@ -193,7 +194,7 @@ public class DefaultEventManagerTest {
 
         TestUtils.forceGC();
 
-        manager.emit(Events.NULL, eventType, null);
+        manager.emit(TestUtils.NULL, eventType, null);
         assertThat(manager.isClean()).isFalse();
 
     }
@@ -209,7 +210,7 @@ public class DefaultEventManagerTest {
         TestUtils.forceGC();
 
         // to force cleanup of stales
-        manager.emit(Events.NULL, eventType, null);
+        manager.emit(TestUtils.NULL, eventType, null);
         assertThat(manager.isClean()).isTrue();
     }
 
@@ -228,7 +229,7 @@ public class DefaultEventManagerTest {
         TestUtils.forceGC();
 
         // to force cleanup of stales
-        manager.emit(Events.NULL, eventType, null);
+        manager.emit(TestUtils.NULL, eventType, null);
         assertThat(manager.isClean()).isFalse();
     }
 
@@ -273,6 +274,14 @@ public class DefaultEventManagerTest {
 
         assertThat(registrar.isClean()).isTrue();
         assertThat(manager.isClean()).isTrue();
+    }
+
+    @Test
+    public void testRegistrarCorrectlyRegisterListeners() throws Exception {
+        final Registrar registrar = manager.createRegistrar();
+        registrar.listen(Filters.any(), listener);
+        registrar.listen(Filters.any(), listener2);
+        verifyBothCalled();
     }
 
     @Test
@@ -331,7 +340,7 @@ public class DefaultEventManagerTest {
         l = null;
         TestUtils.forceGC();
 
-        manager.emit(Events.NULL, eventType, null);
+        manager.emit(TestUtils.NULL, eventType, null);
         assertThat(manager.isClean()).isTrue();
     }
 
@@ -348,21 +357,21 @@ public class DefaultEventManagerTest {
     }
 
     private void verifyOnlyFirstCalled() {
-        manager.emit(this, eventType, null);
+        manager.emit(event);
         verify(listener).onEvent(event);
-        verify(listener2, Mockito.never()).onEvent(Matchers.any());
+        verify(listener2, never()).onEvent(Matchers.any());
     }
 
     private void verifyBothCalled() {
-        manager.emit(this, eventType, null);
+        manager.emit(event);
         verify(listener).onEvent(event);
         verify(listener2).onEvent(event);
     }
 
     private void verifyNoneCalled() {
-        manager.emit(this, eventType, null);
-        verify(listener, Mockito.never()).onEvent(Matchers.any());
-        verify(listener2, Mockito.never()).onEvent(Matchers.any());
+        manager.emit(event);
+        verify(listener, never()).onEvent(Matchers.any());
+        verify(listener2, never()).onEvent(Matchers.any());
     }
 
 

@@ -23,14 +23,13 @@ class DefaultEventManager implements EventManager {
         return new Registrar() {
 
             @Override
-            public void listen(Object emitter, Object type, EventListener<?> listener) {
-                // TODO implement..
-
+            public void listen(Filter<?> filter, EventListener<?> listener) {
+                entries.add(createEntry(filter, listener));
             }
 
             @Override
-            public <T> void listen(Filter<T> filter, EventListener<T> listener) {
-                entries.add(createEntry(filter, listener));
+            public void listen(Object emitter, Object type, EventListener<?> listener) {
+                entries.add(createEntry(createGenericFilter(emitter, type), listener));
             }
 
             @Override
@@ -64,26 +63,28 @@ class DefaultEventManager implements EventManager {
     }
 
     @Override
-    public void listen(Object emitter, Object type, EventListener<?> listener) {
-        // TODO implement..
-
-    }
-
-    @Override
-    public <T> void listen(Filter<T> filter, EventListener<T> listener) {
+    public void listen(Filter<?> filter, EventListener<?> listener) {
+        ensureNotNull("filter can't be null", filter);
         createEntry(filter, listener);
     }
 
     @Override
+    public void listen(Object emitter, Object type, EventListener<?> listener) {
+        ensureNotNull("emitter can't be null", emitter);
+        ensureNotNull("type can't be null", type);
+        createEntry(createGenericFilter(emitter, type), listener);
+    }
+
+    @Override
     public boolean emit(Object emitter, Object type) {
-        // TODO implement..
-        return false;
+        return emit(emitter, type, null);
     }
 
     @Override
     public boolean emit(Object emitter, Object type, Object data) {
-        // TODO implement..
-        return false;
+        ensureNotNull("emitter can't be null", emitter);
+        ensureNotNull("type can't be null", type);
+        return emit(new GenericEvent<Object,Object,Object>(emitter, type, data));
     }
 
     @Override
@@ -125,7 +126,7 @@ class DefaultEventManager implements EventManager {
         return list.isEmpty();
     }
 
-    <T> ListenerEntry createEntry(Filter<T> filter, EventListener<T> listener) {
+    ListenerEntry createEntry(Filter<?> filter, EventListener<?> listener) {
         ensureNotNull("filter can't be null", filter);
         ensureNotNull("listener can't be null", listener);
 

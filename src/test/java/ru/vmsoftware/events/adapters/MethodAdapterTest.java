@@ -67,7 +67,7 @@ public class MethodAdapterTest {
     }
 
     @Test
-    public void testCorrectlyCallsMethod() throws Exception {
+    public void testMethodAdapterCorrectlyCallsMethod() throws Exception {
 
         final boolean result = false;
 

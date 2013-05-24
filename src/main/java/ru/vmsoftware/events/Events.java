@@ -17,8 +17,6 @@ import java.util.List;
  */
 public class Events {
 
-    public static final Object NULL = new Object();
-
     /**
      * Shorthand for {@code Events.init(obj, Events.getManager())}
      * @see #init(Object, Registrar)
@@ -99,35 +97,35 @@ public class Events {
     }
 
     /**
-     * Shorthand for {@code Events.getManager().emit(new GenericEvent(emitter, event))}
+     * Shorthand for {@code Events.getManager().emit(emitter, event))}
      * @see EventManager#emit(Object)
      */
-    public static <E,T> boolean emit(E emitter, T event) {
-        return getManager().emit(new GenericEvent<E,T,Object>(emitter, event));
+    public static boolean emit(Object emitter, Object type) {
+        return getManager().emit(emitter, type);
     }
 
     /**
-     * Shorthand for {@code Events.getManager().emit(new GenericEvent(emitter, event, data))}
+     * Shorthand for {@code Events.getManager().emit(emitter, type, data))}
      * @see EventManager#emit(Object)
      */
-    public static <E,T,D> boolean emit(E emitter, T event, D data) {
-        return getManager().emit(new GenericEvent<E,T,D>(emitter, event, data));
+    public static boolean emit(Object emitter, Object type, Object data) {
+        return getManager().emit(emitter, type, data);
     }
 
     /**
      * Shorthand for {@code Events.getManager().listen(filter, listener)}
      * @see EventManager#listen(Filter, EventListener)
      */
-    public static <T> void listen(Filter<T> filter, EventListener<T> listener) {
+    public static void listen(Filter<?> filter, EventListener<?> listener) {
         getManager().listen(filter, listener);
     }
 
     /**
-     * Shorthand for {@code Events.getManager().listen(emitter, event, listener)}
+     * Shorthand for {@code Events.getManager().listen(emitter, type, listener)}
      * @see EventManager#listen(Object, Object, EventListener)
      */
-    public static void listen(Object emitter, Object event, EventListener<?> listener) {
-        getManager().listen(emitter, event, listener);
+    public static void listen(Object emitter, Object type, EventListener<?> listener) {
+        getManager().listen(emitter, type, listener);
     }
 
     static Object extractField(Object obj, String name) {

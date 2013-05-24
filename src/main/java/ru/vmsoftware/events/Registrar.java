@@ -13,7 +13,7 @@ public interface Registrar {
      * @param filter event filter
      * @param listener listener
      */
-    <T> void listen(Filter<T> filter, EventListener<T> listener);
+    void listen(Filter<?> filter, EventListener<?> listener);
 
     /**
      * Registers listener.

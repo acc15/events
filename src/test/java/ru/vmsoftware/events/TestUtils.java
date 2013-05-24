@@ -15,6 +15,8 @@ import static org.fest.assertions.api.Assertions.assertThat;
  */
 public class TestUtils {
 
+    public static final Object NULL = new Object();
+
     public static void forceGC() throws InterruptedException{
         final WeakReference<Object> ref = new WeakReference<Object>(new Object());
         while (ref.get() != null) {
