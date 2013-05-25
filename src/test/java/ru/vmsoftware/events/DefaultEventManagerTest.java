@@ -12,6 +12,8 @@ import ru.vmsoftware.events.filters.Filter;
 import ru.vmsoftware.events.filters.Filters;
 import ru.vmsoftware.events.references.ManagementType;
 
+import java.io.Serializable;
+
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -20,7 +22,7 @@ import static org.mockito.Mockito.verify;
  * @author Vyacheslav Mayorov
  * @since 2013-28-04
  */
-public class DefaultEventManagerTest {
+public class DefaultEventManagerTest implements Serializable {
 
     @Mock
     private EventListener<Object> listener;
@@ -116,7 +118,7 @@ public class DefaultEventManagerTest {
 
     @Test
     public void testEmitShouldCallListenersRegisteredWithInterfaceOrParentClass() throws Exception {
-        manager.listen(CharSequence.class, Filters.any(), listener);
+        manager.listen(Serializable.class, Filters.any(), listener);
         manager.emit(event);
         verify(listener).onEvent(event);
     }
