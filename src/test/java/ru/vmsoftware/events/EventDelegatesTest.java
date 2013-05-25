@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import ru.vmsoftware.events.adapters.SimpleAdapter;
+import ru.vmsoftware.events.filters.AbstractSimpleFilter;
 import ru.vmsoftware.events.filters.Filter;
 
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -25,7 +26,7 @@ public class EventDelegatesTest {
     private Object emitter = new Object();
     private Object type = new Object();
     private Object data = new Object();
-    private Filter<Object> filter = new Filter<Object>() {
+    private Filter<Object> filter = new AbstractSimpleFilter<Object>() {
         @Override
         public boolean filter(Object value) {
             return true;

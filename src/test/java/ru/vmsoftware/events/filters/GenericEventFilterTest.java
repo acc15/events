@@ -67,4 +67,9 @@ public class GenericEventFilterTest {
         verify(emitterFilter).filter(this);
         verify(typeFilter, Mockito.never()).filter(this);
     }
+
+    @Test
+    public void testFilterShouldReturnUnderlyingFilters() throws Exception {
+        assertThat(genericEventFilter.getUnderlyingObjects()).containsExactly(emitterFilter, typeFilter);
+    }
 }

@@ -117,15 +117,14 @@ public class DefaultEventManagerTest {
     @Test
     public void testEmitShouldCallListenersRegisteredWithInterfaceOrParentClass() throws Exception {
         manager.listen(CharSequence.class, Filters.any(), listener);
-        final String emitter = "abc";
-        manager.emit(emitter, eventType, eventData);
+        manager.emit(event);
         verify(listener).onEvent(event);
     }
 
     @Test
     public void testEmittedEventsDeliveredIfListenerAddForEmitterClass() throws Exception {
         manager.listen(DefaultEventManagerTest.class, Filters.any(), listener);
-        manager.emit(this, eventType, eventData);
+        manager.emit(event);
         verify(listener).onEvent(event);
     }
 
@@ -149,7 +148,7 @@ public class DefaultEventManagerTest {
 
         manager.listen(this, Filters.any(), listener);
         manager.listen(this, Filters.any(), listener2);
-        manager.emit(this, eventType, eventData);
+        manager.emit(event);
 
         verify(listener).onEvent(event);
         verify(listener2, never()).onEvent(Matchers.any());

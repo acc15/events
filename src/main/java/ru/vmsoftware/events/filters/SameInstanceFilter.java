@@ -9,7 +9,7 @@ import ru.vmsoftware.events.providers.StrongProvider;
  * @author Vyacheslav Mayorov
  * @since 2013-03-05
  */
-class SameInstanceFilter<T> implements Filter<T>, ContainerManaged {
+class SameInstanceFilter<T> extends AbstractSimpleFilter<T> implements ContainerManaged {
     SameInstanceFilter(T instance) {
         this.instance = new StrongProvider<T>(instance);
     }

@@ -2,6 +2,9 @@ package ru.vmsoftware.events.references;
 
 import ru.vmsoftware.events.providers.Provider;
 
+import java.util.Collections;
+import java.util.List;
+
 import static ru.vmsoftware.events.references.ManagementType.CONTAINER;
 import static ru.vmsoftware.events.references.ManagementUtils.getManagementType;
 
@@ -18,9 +21,7 @@ public abstract class AbstractReferenceContainer implements ReferenceContainer {
             return provider;
         }
         if (getManagementType(obj, defaultType) != CONTAINER) {
-            if (obj instanceof ContainerManaged) {
-                ((ContainerManaged) obj).initReferences(this);
-            }
+            initObject(Collections.singletonList(obj));
             return provider;
         }
         return manageObject(obj);
@@ -32,4 +33,14 @@ public abstract class AbstractReferenceContainer implements ReferenceContainer {
     }
 
     protected abstract <T> Provider<T> manageObject(T obj);
+
+    private void initObject(List<?> objects) {
+        for (Object obj: objects) {
+            if (obj instanceof ContainerManaged) {
+                ((ContainerManaged) obj).initReferences(this);
+            } else if (obj instanceof CompositeObject<?>) {
+                initObject(((CompositeObject<?>) obj).getUnderlyingObjects());
+            }
+        }
+    }
 }

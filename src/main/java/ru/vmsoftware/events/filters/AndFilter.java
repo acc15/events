@@ -22,5 +22,10 @@ class AndFilter<T> implements Filter<T> {
         return true;
     }
 
+    @Override
+    public List<Filter<T>> getUnderlyingObjects() {
+        return filters;
+    }
+
     private List<Filter<T>> filters;
 }
