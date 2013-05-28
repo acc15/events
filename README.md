@@ -1,6 +1,6 @@
 events
 ======
 
-Java Listener-Emitter (Publisher-Subscriber) framework
+Java Listener framework
 
 More detailed description will be ready soon

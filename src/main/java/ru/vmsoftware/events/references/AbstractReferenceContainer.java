@@ -21,7 +21,7 @@ public abstract class AbstractReferenceContainer implements ReferenceContainer {
             return provider;
         }
         if (getManagementType(obj, defaultType) != CONTAINER) {
-            initObject(Collections.singletonList(obj));
+            initObjects(Collections.singletonList(obj));
             return provider;
         }
         return manageObject(obj);
@@ -34,12 +34,12 @@ public abstract class AbstractReferenceContainer implements ReferenceContainer {
 
     protected abstract <T> Provider<T> manageObject(T obj);
 
-    private void initObject(List<?> objects) {
+    private void initObjects(List<?> objects) {
         for (Object obj: objects) {
             if (obj instanceof ContainerManaged) {
                 ((ContainerManaged) obj).initReferences(this);
             } else if (obj instanceof CompositeObject<?>) {
-                initObject(((CompositeObject<?>) obj).getUnderlyingObjects());
+                initObjects(((CompositeObject<?>) obj).getUnderlyingObjects());
             }
         }
     }
