@@ -26,7 +26,7 @@ public class EventsTest {
 
     static abstract class ParentListener extends ListenerBase {
 
-        @Listener(emitterType = EventsTest.class, event = "A")
+        @Listener(emitterClass = EventsTest.class, event = "A")
         void parentListener() {
             invoked = true;
         }
@@ -69,7 +69,7 @@ public class EventsTest {
     @Test
     public void testInitShouldAddGlobalListener() throws Exception {
         testListener(new ListenerBase() {
-            @Listener(eventType = TestEnum.class)
+            @Listener(eventClass = TestEnum.class)
             void listenerMethod() { invoked = true; }
         }, TestEnum.A, true);
     }
@@ -77,7 +77,7 @@ public class EventsTest {
     @Test
     public void testInitShouldAddListenerByField() throws Exception {
         testListener(new ListenerBase() {
-            @Listener(field ="thisEmitter", eventType = TestEnum.class)
+            @Listener(field ="thisEmitter", eventClass = TestEnum.class)
             void listenerMethod() { invoked = true; }
             Object thisEmitter = EventsTest.this;
         }, TestEnum.A, false);
@@ -86,7 +86,7 @@ public class EventsTest {
     @Test
     public void testInitShouldAddListenerByEmitterClass() throws Exception {
         testListener(new ListenerBase() {
-            @Listener(emitterType = EventsTest.class, eventType = TestEnum.class)
+            @Listener(emitterClass = EventsTest.class, eventClass = TestEnum.class)
             void listenerMethod() { invoked = true; }
         }, TestEnum.A, false);
     }
@@ -94,7 +94,7 @@ public class EventsTest {
     @Test
     public void testInitShouldAddListenerBySourcePattern() throws Exception {
         testListener(new ListenerBase() {
-            @Listener(emitterType = EventsTest.class, eventType = TestEnum.class)
+            @Listener(emitterClass = EventsTest.class, eventClass = TestEnum.class)
             void listenerMethod() { invoked = true; }
         }, TestEnum.A, false);
     }
@@ -102,7 +102,7 @@ public class EventsTest {
     @Test
     public void testInitShouldComposeEmitterTypeAndPattern() throws Exception {
         testListener(new ListenerBase() {
-            @Listener(emitterType = EventsTest.class, emitter = EMITTER_ID)
+            @Listener(emitterClass = EventsTest.class, emitter = EMITTER_ID)
             void listenerMethod() { invoked = true; }
         }, TestEnum2.A, false);
     }
@@ -110,7 +110,7 @@ public class EventsTest {
     @Test
     public void testInitShouldComposeEventTypeAndPattern() throws Exception {
         testListener(new ListenerBase() {
-            @Listener(eventType = TestEnum2.class, event = "A")
+            @Listener(eventClass = TestEnum2.class, event = "A")
             void listenerMethod() { invoked = true; }
         }, TestEnum2.A, TestEnum.A, false);
     }

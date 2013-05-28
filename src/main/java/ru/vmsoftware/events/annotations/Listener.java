@@ -12,8 +12,7 @@ public @interface Listener {
 
     /**
      * Field name of emitter object instance.
-     * If you want to listen specific instance of emitter then you can specify field name where
-     * emitter instance can be found.
+     * Allows to listen specific instance of emitter which is stored in specified field of listener object
      * @return field name where emitter instance should be looked up
      */
     String field() default "";
@@ -31,25 +30,25 @@ public @interface Listener {
     String tag() default "";
 
     /**
-     * Emitter class allows to listen only events which are emitter by instances of specified class
+     * Emitter class allows to listen events from emitters which are instances of specified class
      * @return emitter class
      */
-    Class<?> emitterType() default Void.class;
+    Class<?> emitterClass() default Void.class;
 
     /**
-     * Emitter value allows to listen only events from emitter which has specified {@link #toString()} value
-     * @return emitter pattern
+     * Emitter value allows to listen events from emitters which matches specified {@link #toString()} value
+     * @return emitter {@link #toString()} value
      */
     String emitter() default "";
 
     /**
-     * Event class allows to listen only events which are instances of specified class
+     * Event class allows to listen events which are instances of specified class
      * @return event class
      */
-    Class<?> eventType() default Void.class;
+    Class<?> eventClass() default Void.class;
 
     /**
-     * Event value allows to listen only events which has specified {@link #toString()} value
+     * Event value allows to listen events which has specified {@link #toString()} value
      * @return event value
      */
     String event() default "";

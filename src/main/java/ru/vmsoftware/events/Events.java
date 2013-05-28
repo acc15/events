@@ -174,11 +174,11 @@ public class Events {
             emitter = ((TagContainer<?>)container).getByTag(listener.tag());
         }
 
-        final Filter<Object> typeFilter = getFilterByClassAndPattern(listener.eventType(), listener.event());
+        final Filter<Object> typeFilter = getFilterByClassAndPattern(listener.eventClass(), listener.event());
         final MethodAdapter methodAdapter = new MethodAdapter(obj, method);
         registrar.listen(new GenericEventFilter(emitter != null
                 ? new EqualsFilter<Object>(emitter)
-                : getFilterByClassAndPattern(listener.emitterType(), listener.emitter()), typeFilter), methodAdapter);
+                : getFilterByClassAndPattern(listener.emitterClass(), listener.emitter()), typeFilter), methodAdapter);
     }
 
     static EventManager manager = new DefaultEventManager();
