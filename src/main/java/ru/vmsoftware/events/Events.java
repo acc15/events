@@ -89,16 +89,8 @@ public class Events {
     }
 
     /**
-     * Shorthand for {@code Events.getManager().emit(event)}
-     * @see EventManager#emit(Object)
-     */
-    public static boolean emit(Object event) {
-        return getManager().emit(event);
-    }
-
-    /**
      * Shorthand for {@code Events.getManager().emit(emitter, event))}
-     * @see EventManager#emit(Object)
+     * @see EventManager#emit(Object,Object)
      */
     public static boolean emit(Object emitter, Object type) {
         return getManager().emit(emitter, type);
@@ -106,25 +98,17 @@ public class Events {
 
     /**
      * Shorthand for {@code Events.getManager().emit(emitter, type, data))}
-     * @see EventManager#emit(Object)
+     * @see EventManager#emit(Object,Object,Object)
      */
     public static boolean emit(Object emitter, Object type, Object data) {
         return getManager().emit(emitter, type, data);
     }
 
     /**
-     * Shorthand for {@code Events.getManager().listen(filter, listener)}
-     * @see EventManager#listen(Filter, EventListener)
-     */
-    public static void listen(Filter<?> filter, EventListener<?> listener) {
-        getManager().listen(filter, listener);
-    }
-
-    /**
      * Shorthand for {@code Events.getManager().listen(emitter, type, listener)}
      * @see EventManager#listen(Object, Object, EventListener)
      */
-    public static void listen(Object emitter, Object type, EventListener<?> listener) {
+    public static void listen(Object emitter, Object type, EventListener listener) {
         getManager().listen(emitter, type, listener);
     }
 
@@ -176,11 +160,12 @@ public class Events {
 
         final Filter<Object> typeFilter = getFilterByClassAndPattern(listener.eventClass(), listener.event());
         final MethodAdapter methodAdapter = new MethodAdapter(obj, method);
-        registrar.listen(new GenericEventFilter(emitter != null
+        registrar.listen(emitter != null
                 ? new EqualsFilter<Object>(emitter)
-                : getFilterByClassAndPattern(listener.emitterClass(), listener.emitter()), typeFilter), methodAdapter);
+                : getFilterByClassAndPattern(listener.emitterClass(), listener.emitter()), typeFilter, methodAdapter);
     }
 
     static EventManager manager = new DefaultEventManager();
+
 
 }

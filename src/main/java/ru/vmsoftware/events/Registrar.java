@@ -1,36 +1,31 @@
 package ru.vmsoftware.events;
 
-import ru.vmsoftware.events.filters.Filter;
-
 /**
+ * <p>Registrar is very suitable in the cases when listeners should be removed manually from {@link EventManager}
+ * before real listener object will be garbage collected (in this case listeners will be removed automatically)</p>
+ * <p>Registrar provides methods by using which clients can {@link #listen(Object, Object, EventListener) register},
+ * {@link #mute(Object) unregister} or {@link #cleanup() remove all} registered by this registrar listeners</p>
 * @author Vyacheslav Mayorov
 * @since 2013-30-04
 */
 public interface Registrar {
 
     /**
-     * Registers listener.
-     * @param filter event filter
-     * @param listener listener
-     */
-    void listen(Filter<?> filter, EventListener<?> listener);
-
-    /**
-     * Registers listener.
+     * Registers listener
      * @param emitter emitter
      * @param type type
      * @param listener listener
      */
-    void listen(Object emitter, Object type, EventListener<?> listener);
+    void listen(Object emitter, Object type, EventListener<?,?,?> listener);
 
     /**
-     * Removes specified listener from registrar
+     * Removes specified listener registered by {@code this} registrar
      * @param listener listener to remove
      */
     void mute(Object listener);
 
     /**
-     * Removes all listeners registered by this registrar
+     * Removes all listeners registered by {@code this} registrar
      */
     void cleanup();
 

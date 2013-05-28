@@ -1,36 +1,31 @@
 package ru.vmsoftware.events;
 
 /**
+ * <p>Emitter is an interface to implementations which simplifies method
+ * emitting by holding reference to real emitter object as internal state.</p>
+ * <p>Also implementations may provide some additional functionality.</p><p><b>For example:</b>
+ * emitter proxy can force event handling in another thread
+ * (by calling {@link EventManager#emit(Object, Object, Object) eventManager.emit()} in another thread).</p>
  * @author Vyacheslav Mayorov
  * @since 2013-29-05
  */
 public interface Emitter {
 
     /**
-     * Emits specific event
-     * @param event event to emit
-     * @return <p>result of calling {@link EventListener listeners} -
-     *         if at least one returns <code>false</code>,
-     *         then this method will also returns <code>false</code>
-     *         and no more listeners will receive emitted event.</p>
-     *         <p>Applications may use this result as they want.<br/>
-     *         <i>For example: </i>listener may return <code>false</code>
-     *         if emitted event {@code data} isn't valid</p>
-     * @see EventListener#onEvent(Object)
+     * Emits event of specified type
+     * @param type event type
+     * @return result returned from {@link EventManager#emit(Object, Object)}
+     * @see EventManager#emit(Object, Object)
      */
-    boolean emit(Object event);
+    boolean emit(Object type);
 
     /**
-     * Convenient shorthand for {@link #emit(Object) emit(new GenericEvent(emitter, type))}
-     * @see #emit(Object)
-     * @see GenericEvent
+     * Emits event of specified type with attached data
+     * @param type event type
+     * @param data event data
+     * @return result returned from {@link EventManager#emit(Object, Object, Object)}
+     * @see EventManager#emit(Object, Object, Object)
      */
-    boolean emit(Object emitter, Object type);
+    boolean emit(Object type, Object data);
 
-    /**
-     * Convenient shorthand for {@link #emit(Object) emit(new GenericEvent(emitter, type, data))}
-     * @see #emit(Object)
-     * @see GenericEvent
-     */
-    boolean emit(Object emitter, Object type, Object data);
 }

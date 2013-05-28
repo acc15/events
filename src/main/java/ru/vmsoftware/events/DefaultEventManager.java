@@ -2,16 +2,16 @@ package ru.vmsoftware.events;
 
 import ru.vmsoftware.events.filters.Filter;
 import ru.vmsoftware.events.filters.Filters;
-import ru.vmsoftware.events.filters.GenericEventFilter;
 import ru.vmsoftware.events.linked.CustomWeakLinkedList;
 import ru.vmsoftware.events.linked.WeakLinkedList;
 import ru.vmsoftware.events.providers.Provider;
-import ru.vmsoftware.events.providers.StrongProvider;
 import ru.vmsoftware.events.references.ContainerManaged;
 import ru.vmsoftware.events.references.ManagementType;
 import ru.vmsoftware.events.references.ReferenceContainer;
 
 import java.util.Iterator;
+
+import static ru.vmsoftware.events.providers.Providers.strongRef;
 
 /** @author Vyacheslav Mayorov
  * @since 2013-28-04
@@ -23,13 +23,8 @@ class DefaultEventManager implements EventManager {
         return new Registrar() {
 
             @Override
-            public void listen(Filter<?> filter, EventListener<?> listener) {
-                entries.add(createEntry(filter, listener));
-            }
-
-            @Override
-            public void listen(Object emitter, Object type, EventListener<?> listener) {
-                entries.add(createEntry(createGenericFilter(emitter, type), listener));
+            public void listen(Object emitter, Object type, EventListener listener) {
+                entries.add(createEntry(createFilterByObject(emitter), createFilterByObject(type), listener));
             }
 
             @Override
@@ -37,7 +32,7 @@ class DefaultEventManager implements EventManager {
                 final Iterator<ListenerEntry> iter = entries.iterator();
                 while (iter.hasNext()) {
                     final ListenerEntry e = iter.next();
-                    final EventListener<?> l = e.listenerProvider.get();
+                    final EventListener l = e.listenerProvider.get();
                     if (l != null && matchListener(l, listener)) {
                         list.remove(e);
                         iter.remove();
@@ -63,16 +58,8 @@ class DefaultEventManager implements EventManager {
     }
 
     @Override
-    public void listen(Filter<?> filter, EventListener<?> listener) {
-        ensureNotNull("filter can't be null", filter);
-        createEntry(filter, listener);
-    }
-
-    @Override
-    public void listen(Object emitter, Object type, EventListener<?> listener) {
-        ensureNotNull("emitter can't be null", emitter);
-        ensureNotNull("type can't be null", type);
-        createEntry(createGenericFilter(emitter, type), listener);
+    public void listen(Object emitter, Object type, EventListener listener) {
+        createEntry(emitter, type, listener);
     }
 
     @Override
@@ -81,24 +68,25 @@ class DefaultEventManager implements EventManager {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public boolean emit(Object emitter, Object type, Object data) {
         ensureNotNull("emitter can't be null", emitter);
         ensureNotNull("type can't be null", type);
-        return emit(new GenericEvent<Object,Object,Object>(emitter, type, data));
-    }
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public boolean emit(Object event) {
-        ensureNotNull("event can't be null", event);
-        for (ListenerEntry e : list) {
-            final Filter<Object> filter = (Filter<Object>) e.filterProvider.get();
-            if (!filter.filter(event)) {
+        for (final ListenerEntry e : list) {
+
+            final Filter emitterFilter = e.emitterFilterProvider.get();
+            if (!emitterFilter.filter(emitter)) {
                 continue;
             }
 
-            final EventListener<Object> listener = (EventListener<Object>) e.listenerProvider.get();
-            if (!listener.onEvent(event)) {
+            final Filter typeFilter = e.typeFilterProvider.get();
+            if (!typeFilter.filter(type)) {
+                continue;
+            }
+
+            final EventListener listener = e.listenerProvider.get();
+            if (!listener.onEvent(emitter, type, data)) {
                 return false;
             }
         }
@@ -109,7 +97,7 @@ class DefaultEventManager implements EventManager {
     public void mute(Object listener) {
         final Iterator<ListenerEntry> iter = list.iterator();
         while (iter.hasNext()) {
-            final EventListener<?> l = iter.next().listenerProvider.get();
+            final EventListener l = iter.next().listenerProvider.get();
             if (matchListener(l, listener)) {
                 iter.remove();
             }
@@ -126,11 +114,15 @@ class DefaultEventManager implements EventManager {
         return list.isEmpty();
     }
 
-    ListenerEntry createEntry(Filter<?> filter, EventListener<?> listener) {
-        ensureNotNull("filter can't be null", filter);
+    ListenerEntry createEntry(Object emitter, Object type, EventListener<?,?,?> listener) {
+        ensureNotNull("emitter can't be null", emitter);
+        ensureNotNull("type can't be null", type);
         ensureNotNull("listener can't be null", listener);
 
-        final ListenerEntry entry = new ListenerEntry(filter, listener);
+        final ListenerEntry entry = new ListenerEntry(
+                createFilterByObject(emitter),
+                createFilterByObject(type),
+                listener);
         entry.initReferences(list.createEntryContainer(entry));
 
         list.add(entry);
@@ -138,30 +130,27 @@ class DefaultEventManager implements EventManager {
     }
 
     static class ListenerEntry extends CustomWeakLinkedList.WeakEntry<ListenerEntry> implements ContainerManaged {
-        ListenerEntry(
-                Filter<?> filter,
-                EventListener<?> listener) {
-            this.filterProvider = new StrongProvider<Filter<?>>(filter);
-            this.listenerProvider = new StrongProvider<EventListener<?>>(listener);
+        ListenerEntry(Filter emitterFilter, Filter typeFilter, EventListener listener) {
+            this.emitterFilterProvider = strongRef(emitterFilter);
+            this.typeFilterProvider = strongRef(typeFilter);
+            this.listenerProvider = strongRef(listener);
         }
 
         @Override
         public void initReferences(ReferenceContainer referenceContainer) {
-            filterProvider = referenceContainer.manage(filterProvider, ManagementType.MANUAL);
+            emitterFilterProvider = referenceContainer.manage(emitterFilterProvider, ManagementType.MANUAL);
+            typeFilterProvider = referenceContainer.manage(typeFilterProvider, ManagementType.MANUAL);
             listenerProvider = referenceContainer.manage(listenerProvider, ManagementType.MANUAL);
         }
 
-        Provider<Filter<?>> filterProvider;
-        Provider<EventListener<?>> listenerProvider;
+        Provider<Filter> emitterFilterProvider;
+        Provider<Filter> typeFilterProvider;
+        Provider<EventListener> listenerProvider;
     }
 
-    Filter<Object> createGenericFilter(Object emitter, Object type) {
-        return new GenericEventFilter(getFilter(emitter), getFilter(type));
-    }
-
-    Filter<?> getFilter(Object obj) {
-        if (obj instanceof Filter<?>) {
-            return (Filter<?>) obj;
+    Filter<?> createFilterByObject(Object obj) {
+        if (obj instanceof Filter) {
+            return (Filter) obj;
         } else if (obj instanceof Class<?>) {
             return Filters.instanceOf((Class<?>)obj);
         } else {
@@ -169,7 +158,7 @@ class DefaultEventManager implements EventManager {
         }
     }
 
-    boolean matchListener(EventListener<?> l, Object listener) {
+    boolean matchListener(EventListener l, Object listener) {
         return l.equals(listener) || l.isCounterpart(listener);
     }
 

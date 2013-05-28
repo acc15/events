@@ -32,9 +32,9 @@ public class EventDelegatesTest {
             return true;
         }
     };
-    private EventListener<Object> listener = new SimpleAdapter<Object>() {
+    private EventListener listener = new SimpleAdapter() {
         @Override
-        public boolean onEvent(Object event) {
+        public boolean onEvent(Object emitter, Object type, Object data) {
             return true;
         }
     };
@@ -57,32 +57,20 @@ public class EventDelegatesTest {
     }
 
     @Test
-    public void testEmitCorrectlyDelegatesCall() throws Exception {
-        Events.emit(data);
-        verify(eventManager).emit(data);
-    }
-
-    @Test
-    public void testEmit2CorrectlyDelegatesCall() throws Exception {
+    public void testEmitCorrectlyRedirectsEmitterAndType() throws Exception {
         Events.emit(emitter, type);
         verify(eventManager).emit(emitter, type);
     }
 
     @Test
-    public void testEmit3CorrectlyDelegatesCall() throws Exception {
+    public void testEmitCorrectlyRedirectEmitterTypeAndData() throws Exception {
         Events.emit(emitter, type, data);
         verify(eventManager).emit(emitter, type, data);
     }
 
     @Test
-    public void testListenCorrectlyDelegatesCall() throws Exception {
-        Events.listen(filter, listener);
-        verify(eventManager).listen(filter, listener);
-    }
-
-    @Test
-    public void testListenFilterCorrectlyDelegatesCall() throws Exception {
-        Events.listen(emitter, filter, listener);
-        verify(eventManager).listen(emitter, filter, listener);
+    public void testListenFilterCorrectlyRedirectsEmitterTypeAndListener() throws Exception {
+        Events.listen(emitter, type, listener);
+        verify(eventManager).listen(emitter, type, listener);
     }
 }

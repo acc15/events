@@ -25,36 +25,22 @@ import static org.mockito.Mockito.verify;
 public class DefaultEventManagerTest implements Serializable {
 
     @Mock
-    private EventListener<Object> listener;
+    private EventListener<Object,Object,Object> listener;
 
     @Mock
-    private EventListener<Object> listener2;
+    private EventListener<Object,Object,Object> listener2;
 
     
     private Object eventType = new Object();
     private Object eventData = new Object();
-    private GenericEvent<Object,Object,Object> event =
-            new GenericEvent<Object, Object, Object>(this, eventType, eventData);
-
-
-    private ArgumentCaptor<Object> eventCaptor = ArgumentCaptor.forClass(Object.class);
-    private ArgumentCaptor<Object> eventCaptor2 = ArgumentCaptor.forClass(Object.class);
 
     private DefaultEventManager manager = new DefaultEventManager();
-
-    private void assertGenericEvent(Object event, Object emitter, Object type, Object data) {
-        assertThat(event).isInstanceOf(GenericEvent.class);
-        final GenericEvent<?,?,?> genericEvent = (GenericEvent<?,?,?>) event;
-        assertThat(genericEvent.getEmitter()).isSameAs(emitter);
-        assertThat(genericEvent.getType()).isSameAs(type);
-        assertThat(genericEvent.getData()).isSameAs(data);
-    }
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        Mockito.when(listener.onEvent(eventCaptor.capture())).thenReturn(true);
-        Mockito.when(listener2.onEvent(eventCaptor2.capture())).thenReturn(true);
+        Mockito.when(listener.onEvent(Mockito.any(),Mockito.any(),Mockito.any())).thenReturn(true);
+        Mockito.when(listener2.onEvent(Mockito.any(),Mockito.any(),Mockito.any())).thenReturn(true);
     }
 
     @Test(expected = NullPointerException.class)
@@ -73,16 +59,6 @@ public class DefaultEventManagerTest implements Serializable {
     }
 
     @Test(expected = NullPointerException.class)
-    public void testListenDoesntAcceptNullPointersForFilter() throws Exception {
-        manager.listen(null, listener);
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void testListenDoesntAcceptNullPointersForListener() throws Exception {
-        manager.listen(Filters.any(), null);
-    }
-
-    @Test(expected = NullPointerException.class)
     public void testEmitDoesntAcceptNullPointersForEmitter() throws Exception {
         manager.emit(null, eventType, eventData);
     }
@@ -90,11 +66,6 @@ public class DefaultEventManagerTest implements Serializable {
     @Test(expected = NullPointerException.class)
     public void testEmitDoesntAcceptNullPointersForType() throws Exception {
         manager.emit(this, null, eventData);
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void testEmitDoesntAcceptNullPointersForEvent() throws Exception {
-        manager.emit(null);
     }
 
     @Test
@@ -105,29 +76,22 @@ public class DefaultEventManagerTest implements Serializable {
     @Test
     public void testEmittedEventDeliveredCorrectly() throws Exception {
         manager.listen(this, Filters.any(), listener);
-        manager.emit(event);
-        verify(listener).onEvent(event);
-    }
-
-    @Test
-    public void testEmittedEventDeliveredCorrectly2() throws Exception {
-        manager.listen(Filters.any(), listener);
         manager.emit(this, eventType, eventData);
-        assertGenericEvent(eventCaptor.getValue(), this, eventType, eventData);
+        verify(listener).onEvent(this, eventType, eventData);
     }
 
     @Test
     public void testEmitShouldCallListenersRegisteredWithInterfaceOrParentClass() throws Exception {
         manager.listen(Serializable.class, Filters.any(), listener);
-        manager.emit(event);
-        verify(listener).onEvent(event);
+        manager.emit(this, eventType, eventData);
+        verify(listener).onEvent(this, eventType, eventData);
     }
 
     @Test
     public void testEmittedEventsDeliveredIfListenerAddForEmitterClass() throws Exception {
         manager.listen(DefaultEventManagerTest.class, Filters.any(), listener);
-        manager.emit(event);
-        verify(listener).onEvent(event);
+        manager.emit(this, eventType, eventData);
+        verify(listener).onEvent(this, eventType, eventData);
     }
 
     @Test
@@ -146,20 +110,20 @@ public class DefaultEventManagerTest implements Serializable {
 
     @Test
     public void testManagerBreaksExecutionIfSomeoneListenerReturnsFalse() throws Exception {
-        Mockito.when(listener.onEvent(event)).thenReturn(false);
+        Mockito.when(listener.onEvent(this, eventType, eventData)).thenReturn(false);
 
         manager.listen(this, Filters.any(), listener);
         manager.listen(this, Filters.any(), listener2);
-        manager.emit(event);
+        manager.emit(this, eventType, eventData);
 
-        verify(listener).onEvent(event);
-        verify(listener2, never()).onEvent(Matchers.any());
+        verify(listener).onEvent(this, eventType, eventData);
+        verify(listener2, never()).onEvent(Matchers.any(),Matchers.any(),Matchers.any());
     }
 
     @ManagedBy(ManagementType.CONTAINER)
     private static class ManagedContainerListener extends SimpleAdapter {
         @Override
-        public boolean onEvent(Object event) {
+        public boolean onEvent(Object emitter, Object type, Object event) {
             return true;
         }
     }
@@ -180,7 +144,7 @@ public class DefaultEventManagerTest implements Serializable {
     @ManagedBy(ManagementType.MANUAL)
     private static class ManualManagedListener extends SimpleAdapter {
         @Override
-        public boolean onEvent(Object event) {
+        public boolean onEvent(Object emitter, Object type, Object event) {
             return true;
         }
     }
@@ -217,9 +181,9 @@ public class DefaultEventManagerTest implements Serializable {
 
     @Test
     public void testManagerHoldsListenerByStrongRef() throws Exception {
-        EventListener<Object> l = new SimpleAdapter<Object>() {
+        EventListener<Object,Object,Object> l = new SimpleAdapter<Object,Object,Object>() {
             @Override
-            public boolean onEvent(Object event) {
+            public boolean onEvent(Object emitter, Object type, Object event) {
                 return true;
             }
         };
@@ -275,14 +239,6 @@ public class DefaultEventManagerTest implements Serializable {
 
         assertThat(registrar.isClean()).isTrue();
         assertThat(manager.isClean()).isTrue();
-    }
-
-    @Test
-    public void testRegistrarCorrectlyRegisterListeners() throws Exception {
-        final Registrar registrar = manager.createRegistrar();
-        registrar.listen(Filters.any(), listener);
-        registrar.listen(Filters.any(), listener2);
-        verifyBothCalled();
     }
 
     @Test
@@ -358,21 +314,21 @@ public class DefaultEventManagerTest implements Serializable {
     }
 
     private void verifyOnlyFirstCalled() {
-        manager.emit(event);
-        verify(listener).onEvent(event);
-        verify(listener2, never()).onEvent(Matchers.any());
+        manager.emit(this, eventType, eventData);
+        verify(listener).onEvent(this, eventType, eventData);
+        verify(listener2, never()).onEvent(Matchers.any(),Matchers.any(),Matchers.any());
     }
 
     private void verifyBothCalled() {
-        manager.emit(event);
-        verify(listener).onEvent(event);
-        verify(listener2).onEvent(event);
+        manager.emit(this, eventType, eventData);
+        verify(listener).onEvent(this, eventType, eventData);
+        verify(listener2).onEvent(this, eventType, eventData);
     }
 
     private void verifyNoneCalled() {
-        manager.emit(event);
-        verify(listener, never()).onEvent(Matchers.any());
-        verify(listener2, never()).onEvent(Matchers.any());
+        manager.emit(this, eventType, eventData);
+        verify(listener, never()).onEvent(Matchers.any(),Matchers.any(),Matchers.any());
+        verify(listener2, never()).onEvent(Matchers.any(),Matchers.any(),Matchers.any());
     }
 
 

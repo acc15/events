@@ -2,7 +2,6 @@ package ru.vmsoftware.events.adapters;
 
 import org.apache.commons.lang.ObjectUtils;
 import ru.vmsoftware.events.EventListener;
-import ru.vmsoftware.events.GenericEvent;
 import ru.vmsoftware.events.providers.Provider;
 import ru.vmsoftware.events.providers.StrongProvider;
 import ru.vmsoftware.events.references.ContainerManaged;
@@ -15,7 +14,7 @@ import java.lang.reflect.Method;
  * @author Vyacheslav Mayorov
  * @since 2013-27-04
  */
-public class MethodAdapter implements EventListener<Object>, ContainerManaged {
+public class MethodAdapter implements EventListener, ContainerManaged {
 
     public MethodAdapter(Object obj, String methodName) {
         this(obj, findListenerMethod(obj, methodName));
@@ -27,7 +26,7 @@ public class MethodAdapter implements EventListener<Object>, ContainerManaged {
     }
 
     @Override
-    public boolean onEvent(Object event) {
+    public boolean onEvent(Object emitter, Object type, Object data) {
         if (method == null) {
             return true;
         }
@@ -46,34 +45,25 @@ public class MethodAdapter implements EventListener<Object>, ContainerManaged {
         method.setAccessible(true);
         try {
 
-            if (parameterCount == 0) {
-                result = method.invoke(object);
-            } else if (event instanceof GenericEvent<?,?,?>) {
-                final GenericEvent<?,?,?> genericEvent = (GenericEvent<?,?,?>) event;
-                switch (parameterCount) {
-                    case 1:
-                        result = method.invoke(object, parameterTypes[0].isAssignableFrom(GenericEvent.class)
-                            ? genericEvent
-                            : genericEvent.getData());
-                        break;
+            switch (parameterCount) {
+                case 0:
+                    result = method.invoke(object);
+                    break;
 
-                    case 2:
-                        result = method.invoke(object, genericEvent.getType(), genericEvent.getData());
-                        break;
+                case 1:
+                    result = method.invoke(object, data);
+                    break;
 
-                    case 3:
-                        result = method.invoke(object,
-                            genericEvent.getEmitter(), genericEvent.getType(), genericEvent.getData());
-                        break;
+                case 2:
+                    result = method.invoke(object, type, data);
+                    break;
 
-                    default:
-                        throw tooManyArguments();
-                }
-            } else {
-                if (parameterCount > 1) {
+                case 3:
+                    result = method.invoke(object, emitter, type, data);
+                    break;
+
+                default:
                     throw tooManyArguments();
-                }
-                result = method.invoke(object, event);
             }
 
         } catch (IllegalAccessException e) {
