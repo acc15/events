@@ -52,6 +52,18 @@ class DefaultEventManager implements EventManager {
         };
     }
 
+    public Emitter createEmitter(final Object emitter) {
+        return new Emitter() {
+            public boolean emit(Object type) {
+                return DefaultEventManager.this.emit(emitter, type);
+            }
+
+            public boolean emit(Object type, Object data) {
+                return DefaultEventManager.this.emit(emitter, type, data);
+            }
+        };
+    }
+
     public void listen(Object emitter, Object type, EventListener listener) {
         createEntry(emitter, type, listener);
     }

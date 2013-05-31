@@ -122,7 +122,6 @@ public class DefaultEventManagerTest implements Serializable {
 
     @ManagedBy(ManagementType.CONTAINER)
     private static class ManagedContainerListener extends SimpleAdapter {
-        @Override
         public boolean onEvent(Object emitter, Object type, Object event) {
             return true;
         }
@@ -143,7 +142,6 @@ public class DefaultEventManagerTest implements Serializable {
 
     @ManagedBy(ManagementType.MANUAL)
     private static class ManualManagedListener extends SimpleAdapter {
-        @Override
         public boolean onEvent(Object emitter, Object type, Object event) {
             return true;
         }
@@ -182,7 +180,6 @@ public class DefaultEventManagerTest implements Serializable {
     @Test
     public void testManagerHoldsListenerByStrongRef() throws Exception {
         EventListener<Object,Object,Object> l = new SimpleAdapter<Object,Object,Object>() {
-            @Override
             public boolean onEvent(Object emitter, Object type, Object event) {
                 return true;
             }
@@ -224,6 +221,19 @@ public class DefaultEventManagerTest implements Serializable {
     public void testManagerCanCreateRegistrar() throws Exception {
         final Registrar registrar = manager.createRegistrar();
         Assertions.assertThat(registrar).isNotNull();
+    }
+
+    @Test
+    public void testCreateEmitterReturnsObjectForEmitting() throws Exception {
+
+        manager.listen(this, eventType, listener);
+
+        final Emitter emitter = manager.createEmitter(this);
+        emitter.emit(eventType);
+        verify(listener).onEvent(this, eventType, null);
+
+        emitter.emit(eventType, eventData);
+        verify(listener).onEvent(this, eventType, eventData);
     }
 
     @Test

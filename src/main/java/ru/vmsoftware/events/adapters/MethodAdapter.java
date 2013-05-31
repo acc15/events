@@ -25,7 +25,6 @@ public class MethodAdapter implements EventListener, ContainerManaged {
         this.method = method;
     }
 
-    @Override
     public boolean onEvent(Object emitter, Object type, Object data) {
         if (method == null) {
             return true;
@@ -79,12 +78,10 @@ public class MethodAdapter implements EventListener, ContainerManaged {
         return true;
     }
 
-    @Override
     public boolean isCounterpart(Object obj) {
         return ObjectUtils.equals(provider.get(), obj);
     }
 
-    @Override
     public void initReferences(ReferenceContainer referenceContainer) {
         provider = referenceContainer.manage(provider);
     }
