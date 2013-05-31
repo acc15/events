@@ -92,14 +92,14 @@ public class MethodAdapter implements EventListener, ContainerManaged {
         final Method[] methods = type.getDeclaredMethods();
 
         Method foundMethod = null;
-        for (Method m: methods) {
+        for (Method m : methods) {
             if (!methodName.equals(m.getName())) {
                 continue;
             }
 
             final Class<?>[] paramTypes = m.getParameterTypes();
             if (foundMethod == null ||
-                (paramTypes.length < 4 && paramTypes.length > foundMethod.getParameterTypes().length)) {
+                    (paramTypes.length < 4 && paramTypes.length > foundMethod.getParameterTypes().length)) {
                 foundMethod = m;
             }
         }

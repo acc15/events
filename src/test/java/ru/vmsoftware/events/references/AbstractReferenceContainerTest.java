@@ -33,7 +33,6 @@ public class AbstractReferenceContainerTest {
     @Test
     public void testManageReturnsGivenProviderIfObjectIsNull() throws Exception {
         final Provider<Object> nullProvider = new Provider<Object>() {
-            @Override
             public Object get() {
                 return null;
             }

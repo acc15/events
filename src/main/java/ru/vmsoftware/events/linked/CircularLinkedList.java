@@ -59,7 +59,6 @@ public class CircularLinkedList<E extends DoubleLinkedEntry<E>> implements Doubl
         return true;
     }
 
-    @Override
     public Iterator<E> iterator() {
         return new CircularListIterator();
     }
@@ -89,12 +88,10 @@ public class CircularLinkedList<E extends DoubleLinkedEntry<E>> implements Doubl
     }
 
     protected class CircularListIterator implements Iterator<E> {
-        @Override
         public boolean hasNext() {
             return next != null;
         }
 
-        @Override
         public E next() {
             ensureNotModified();
             if (next == null) {
@@ -105,7 +102,6 @@ public class CircularLinkedList<E extends DoubleLinkedEntry<E>> implements Doubl
             return lastReturned;
         }
 
-        @Override
         public void remove() {
             ensureNotModified();
             if (lastReturned == null) {

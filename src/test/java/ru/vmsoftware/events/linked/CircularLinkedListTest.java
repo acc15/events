@@ -6,14 +6,12 @@ package ru.vmsoftware.events.linked;
  */
 public class CircularLinkedListTest extends AbstractLinkedListTest<CircularLinkedListTest.IntEntry> {
 
-    private IntEntry[] testEntries = new IntEntry[] {new IntEntry(10), new IntEntry(15), new IntEntry(20)};
+    private IntEntry[] testEntries = new IntEntry[]{new IntEntry(10), new IntEntry(15), new IntEntry(20)};
 
-    @Override
     protected IntEntry[] getTestEntries() {
         return testEntries;
     }
 
-    @Override
     protected CircularLinkedList<IntEntry> getList() {
         return list;
     }

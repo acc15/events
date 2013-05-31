@@ -8,5 +8,6 @@ import ru.vmsoftware.events.providers.Provider;
  */
 public interface ReferenceContainer {
     <T> Provider<T> manage(Provider<T> provider, ManagementType defaultType);
+
     <T> Provider<T> manage(Provider<T> provider);
 }

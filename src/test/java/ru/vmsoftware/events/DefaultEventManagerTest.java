@@ -3,7 +3,10 @@ package ru.vmsoftware.events;
 import org.fest.assertions.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.*;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import ru.vmsoftware.events.adapters.MethodAdapter;
 import ru.vmsoftware.events.adapters.SimpleAdapter;
 import ru.vmsoftware.events.annotations.ManagedBy;
@@ -25,12 +28,12 @@ import static org.mockito.Mockito.verify;
 public class DefaultEventManagerTest implements Serializable {
 
     @Mock
-    private EventListener<Object,Object,Object> listener;
+    private EventListener<Object, Object, Object> listener;
 
     @Mock
-    private EventListener<Object,Object,Object> listener2;
+    private EventListener<Object, Object, Object> listener2;
 
-    
+
     private Object eventType = new Object();
     private Object eventData = new Object();
 
@@ -39,8 +42,8 @@ public class DefaultEventManagerTest implements Serializable {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        Mockito.when(listener.onEvent(Mockito.any(),Mockito.any(),Mockito.any())).thenReturn(true);
-        Mockito.when(listener2.onEvent(Mockito.any(),Mockito.any(),Mockito.any())).thenReturn(true);
+        Mockito.when(listener.onEvent(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(true);
+        Mockito.when(listener2.onEvent(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(true);
     }
 
     @Test(expected = NullPointerException.class)
@@ -117,7 +120,7 @@ public class DefaultEventManagerTest implements Serializable {
         manager.emit(this, eventType, eventData);
 
         verify(listener).onEvent(this, eventType, eventData);
-        verify(listener2, never()).onEvent(Matchers.any(),Matchers.any(),Matchers.any());
+        verify(listener2, never()).onEvent(Matchers.any(), Matchers.any(), Matchers.any());
     }
 
     @ManagedBy(ManagementType.CONTAINER)
@@ -179,7 +182,7 @@ public class DefaultEventManagerTest implements Serializable {
 
     @Test
     public void testManagerHoldsListenerByStrongRef() throws Exception {
-        EventListener<Object,Object,Object> l = new SimpleAdapter<Object,Object,Object>() {
+        EventListener<Object, Object, Object> l = new SimpleAdapter<Object, Object, Object>() {
             public boolean onEvent(Object emitter, Object type, Object event) {
                 return true;
             }
@@ -326,7 +329,7 @@ public class DefaultEventManagerTest implements Serializable {
     private void verifyOnlyFirstCalled() {
         manager.emit(this, eventType, eventData);
         verify(listener).onEvent(this, eventType, eventData);
-        verify(listener2, never()).onEvent(Matchers.any(),Matchers.any(),Matchers.any());
+        verify(listener2, never()).onEvent(Matchers.any(), Matchers.any(), Matchers.any());
     }
 
     private void verifyBothCalled() {
@@ -337,8 +340,8 @@ public class DefaultEventManagerTest implements Serializable {
 
     private void verifyNoneCalled() {
         manager.emit(this, eventType, eventData);
-        verify(listener, never()).onEvent(Matchers.any(),Matchers.any(),Matchers.any());
-        verify(listener2, never()).onEvent(Matchers.any(),Matchers.any(),Matchers.any());
+        verify(listener, never()).onEvent(Matchers.any(), Matchers.any(), Matchers.any());
+        verify(listener2, never()).onEvent(Matchers.any(), Matchers.any(), Matchers.any());
     }
 
 

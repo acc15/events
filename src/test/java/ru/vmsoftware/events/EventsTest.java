@@ -21,6 +21,7 @@ public class EventsTest {
             invoked = false;
             return res;
         }
+
         boolean invoked = false;
     }
 
@@ -55,14 +56,17 @@ public class EventsTest {
 
     @Test
     public void testInitShouldAddListenersFromParentClass() throws Exception {
-        testListener(new ParentListener() {}, TestEnum2.A, false);
+        testListener(new ParentListener() {
+        }, TestEnum2.A, false);
     }
 
     @Test
     public void testInitShouldAddGlobalListenerForAnyEvent() throws Exception {
         testListener(new ListenerBase() {
             @Listener
-            void listenerMethod() { invoked = true; }
+            void listenerMethod() {
+                invoked = true;
+            }
         }, TestEnum2.A, true);
     }
 
@@ -70,15 +74,20 @@ public class EventsTest {
     public void testInitShouldAddGlobalListener() throws Exception {
         testListener(new ListenerBase() {
             @Listener(eventClass = TestEnum.class)
-            void listenerMethod() { invoked = true; }
+            void listenerMethod() {
+                invoked = true;
+            }
         }, TestEnum.A, true);
     }
 
     @Test
     public void testInitShouldAddListenerByField() throws Exception {
         testListener(new ListenerBase() {
-            @Listener(field ="thisEmitter", eventClass = TestEnum.class)
-            void listenerMethod() { invoked = true; }
+            @Listener(field = "thisEmitter", eventClass = TestEnum.class)
+            void listenerMethod() {
+                invoked = true;
+            }
+
             Object thisEmitter = EventsTest.this;
         }, TestEnum.A, false);
     }
@@ -87,7 +96,9 @@ public class EventsTest {
     public void testInitShouldAddListenerByEmitterClass() throws Exception {
         testListener(new ListenerBase() {
             @Listener(emitterClass = EventsTest.class, eventClass = TestEnum.class)
-            void listenerMethod() { invoked = true; }
+            void listenerMethod() {
+                invoked = true;
+            }
         }, TestEnum.A, false);
     }
 
@@ -95,7 +106,9 @@ public class EventsTest {
     public void testInitShouldAddListenerBySourcePattern() throws Exception {
         testListener(new ListenerBase() {
             @Listener(emitterClass = EventsTest.class, eventClass = TestEnum.class)
-            void listenerMethod() { invoked = true; }
+            void listenerMethod() {
+                invoked = true;
+            }
         }, TestEnum.A, false);
     }
 
@@ -103,7 +116,9 @@ public class EventsTest {
     public void testInitShouldComposeEmitterTypeAndPattern() throws Exception {
         testListener(new ListenerBase() {
             @Listener(emitterClass = EventsTest.class, emitter = EMITTER_ID)
-            void listenerMethod() { invoked = true; }
+            void listenerMethod() {
+                invoked = true;
+            }
         }, TestEnum2.A, false);
     }
 
@@ -111,7 +126,9 @@ public class EventsTest {
     public void testInitShouldComposeEventTypeAndPattern() throws Exception {
         testListener(new ListenerBase() {
             @Listener(eventClass = TestEnum2.class, event = "A")
-            void listenerMethod() { invoked = true; }
+            void listenerMethod() {
+                invoked = true;
+            }
         }, TestEnum2.A, TestEnum.A, false);
     }
 
@@ -121,7 +138,6 @@ public class EventsTest {
             this.value = value;
         }
 
-        @Override
         public Object getByTag(String tag) {
             return this.tag.equals(tag) ? value : null;
         }
@@ -134,7 +150,9 @@ public class EventsTest {
     public void testInitShouldAddListenerByTag() throws Exception {
         testListener(new ContainerBase("abc", EventsTest.this) {
             @Listener(tag = "abc")
-            void listenerMethod() { invoked = true; }
+            void listenerMethod() {
+                invoked = true;
+            }
         }, TestEnum.A, false);
     }
 
@@ -142,15 +160,20 @@ public class EventsTest {
     public void testInitShouldThrowExceptionIfObjectDoesntImplementTagContainer() throws Exception {
         testListener(new ListenerBase() {
             @Listener(tag = "abc")
-            void listenerMethod() { invoked = true; }
+            void listenerMethod() {
+                invoked = true;
+            }
         }, TestEnum.A, false);
     }
 
     @Test
     public void testInitShouldAddListenerFieldByTag() throws Exception {
         testListener(new ListenerBase() {
-            @Listener(field="container", tag = "abc")
-            void listenerMethod() { invoked = true; }
+            @Listener(field = "container", tag = "abc")
+            void listenerMethod() {
+                invoked = true;
+            }
+
             ContainerBase container = new ContainerBase("abc", EventsTest.this);
         }, TestEnum.A, false);
     }
@@ -159,7 +182,10 @@ public class EventsTest {
     public void testInitShouldThrowExceptionIfFieldDoesntImplementTagContainer() throws Exception {
         testListener(new ListenerBase() {
             @Listener(field = "container", tag = "abc")
-            void listenerMethod() { invoked = true; }
+            void listenerMethod() {
+                invoked = true;
+            }
+
             ListenerBase container = new ListenerBase();
         }, TestEnum.A, false);
     }

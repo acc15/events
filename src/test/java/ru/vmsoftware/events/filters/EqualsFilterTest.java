@@ -2,7 +2,6 @@ package ru.vmsoftware.events.filters;
 
 import org.junit.Test;
 
-
 import static org.fest.assertions.api.Assertions.assertThat;
 
 

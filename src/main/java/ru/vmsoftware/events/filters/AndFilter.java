@@ -12,9 +12,8 @@ class AndFilter<T> implements Filter<T> {
         this.filters = filters;
     }
 
-    @Override
     public boolean filter(T value) {
-        for (Filter<T> filter: filters) {
+        for (Filter<T> filter : filters) {
             if (!filter.filter(value)) {
                 return false;
             }
@@ -22,7 +21,6 @@ class AndFilter<T> implements Filter<T> {
         return true;
     }
 
-    @Override
     public List<Filter<T>> getUnderlyingObjects() {
         return filters;
     }

@@ -14,7 +14,6 @@ import static ru.vmsoftware.events.references.ManagementUtils.getManagementType;
  */
 public abstract class AbstractReferenceContainer implements ReferenceContainer {
 
-    @Override
     public <T> Provider<T> manage(Provider<T> provider, ManagementType defaultType) {
         final T obj = provider.get();
         if (obj == null) {
@@ -27,7 +26,6 @@ public abstract class AbstractReferenceContainer implements ReferenceContainer {
         return manageObject(obj);
     }
 
-    @Override
     public <T> Provider<T> manage(Provider<T> provider) {
         return manage(provider, CONTAINER);
     }
@@ -35,7 +33,7 @@ public abstract class AbstractReferenceContainer implements ReferenceContainer {
     protected abstract <T> Provider<T> manageObject(T obj);
 
     private void initObjects(List<?> objects) {
-        for (Object obj: objects) {
+        for (Object obj : objects) {
             if (obj instanceof ContainerManaged) {
                 ((ContainerManaged) obj).initReferences(this);
             } else if (obj instanceof CompositeObject<?>) {

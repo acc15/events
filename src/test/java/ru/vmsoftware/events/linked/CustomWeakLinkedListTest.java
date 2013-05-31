@@ -17,10 +17,10 @@ public class CustomWeakLinkedListTest extends AbstractLinkedListTest<CustomWeakL
 
     private CustomWeakLinkedList<TestWeakEntry> list = new CustomWeakLinkedList<TestWeakEntry>();
 
-    private TestWeakEntry createEntry(Object ...refs) {
+    private TestWeakEntry createEntry(Object... refs) {
         final TestWeakEntry entry = new TestWeakEntry();
         final CustomWeakLinkedList.WeakEntryContainer container = list.createEntryContainer(entry);
-        for (Object ref: refs) {
+        for (Object ref : refs) {
             container.manage(new StrongProvider<Object>(ref));
         }
         return entry;
@@ -38,18 +38,16 @@ public class CustomWeakLinkedListTest extends AbstractLinkedListTest<CustomWeakL
     private Object c = new Object();
 
 
-    private TestWeakEntry[] testEntries = new TestWeakEntry[] {
+    private TestWeakEntry[] testEntries = new TestWeakEntry[]{
             createEntry(a),
             createEntry(b),
             createEntry(c)
     };
 
-    @Override
     protected TestWeakEntry[] getTestEntries() {
         return testEntries;
     }
 
-    @Override
     protected CircularLinkedList<TestWeakEntry> getList() {
         return list;
     }

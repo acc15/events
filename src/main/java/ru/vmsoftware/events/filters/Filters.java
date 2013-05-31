@@ -13,7 +13,7 @@ public class Filters {
 
     @SuppressWarnings("unchecked")
     public static <T> Filter<T> any() {
-        return (Filter<T>)ANY_FILTER_INSTANCE;
+        return (Filter<T>) ANY_FILTER_INSTANCE;
     }
 
     public static <T> Filter<T> sameInstance(T instance) {
@@ -24,7 +24,7 @@ public class Filters {
         return new InstanceOfFilter<T>(type);
     }
 
-    public static <T> Filter<T> and(Filter<T> ...filters) {
+    public static <T> Filter<T> and(Filter<T>... filters) {
         return and(Arrays.asList(filters));
     }
 

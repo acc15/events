@@ -4,7 +4,8 @@ import org.junit.Test;
 import ru.vmsoftware.events.annotations.ManagedBy;
 
 import static org.fest.assertions.api.Assertions.assertThat;
-import static ru.vmsoftware.events.references.ManagementType.*;
+import static ru.vmsoftware.events.references.ManagementType.CONTAINER;
+import static ru.vmsoftware.events.references.ManagementType.MANUAL;
 import static ru.vmsoftware.events.references.ManagementUtils.getManagementType;
 
 /**

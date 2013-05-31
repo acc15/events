@@ -27,13 +27,11 @@ public class EventDelegatesTest {
     private Object type = new Object();
     private Object data = new Object();
     private Filter<Object> filter = new AbstractSimpleFilter<Object>() {
-        @Override
         public boolean filter(Object value) {
             return true;
         }
     };
     private EventListener listener = new SimpleAdapter() {
-        @Override
         public boolean onEvent(Object emitter, Object type, Object data) {
             return true;
         }

@@ -9,7 +9,6 @@ class InstanceOfFilter<T> extends AbstractSimpleFilter<T> {
         this.clazz = clazz;
     }
 
-    @Override
     public boolean filter(T value) {
         return clazz.isInstance(value);
     }

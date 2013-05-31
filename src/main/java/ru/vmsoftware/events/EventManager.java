@@ -8,6 +8,7 @@ public interface EventManager extends Registrar {
 
     /**
      * Creates new listener registrar
+     *
      * @return {@link Registrar}
      * @see Registrar
      */
@@ -15,6 +16,7 @@ public interface EventManager extends Registrar {
 
     /**
      * Creates new event emitter
+     *
      * @param emitter real event emitter
      * @return {@link Emitter}
      * @see Emitter
@@ -22,16 +24,18 @@ public interface EventManager extends Registrar {
     Emitter createEmitter(Object emitter);
 
     /**
-     * Convenient shorthand for {@link #emit(Object,Object,Object) emit(emitter, type, null))}
-     * @see #emit(Object,Object,Object)
+     * Convenient shorthand for {@link #emit(Object, Object, Object) emit(emitter, type, null))}
+     *
+     * @see #emit(Object, Object, Object)
      */
     boolean emit(Object emitter, Object type);
 
     /**
      * Emits event
+     *
      * @param emitter real event emitter
-     * @param type event type
-     * @param data event data
+     * @param type    event type
+     * @param data    event data
      * @return <p>result of calling {@link EventListener listeners} -
      *         if at least one returns <code>false</code>,
      *         then this method will also returns <code>false</code>

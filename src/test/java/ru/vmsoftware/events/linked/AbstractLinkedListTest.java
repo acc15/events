@@ -17,6 +17,7 @@ import static ru.vmsoftware.events.TestUtils.assertIterator;
 public abstract class AbstractLinkedListTest<E extends DoubleLinkedEntry<E>> {
 
     protected abstract E[] getTestEntries();
+
     protected abstract CircularLinkedList<E> getList();
 
     @Test(expected = NoSuchElementException.class)

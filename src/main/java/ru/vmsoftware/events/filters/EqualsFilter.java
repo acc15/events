@@ -9,7 +9,6 @@ public class EqualsFilter<T> extends AbstractSimpleFilter<T> {
         this.value = value;
     }
 
-    @Override
     public boolean filter(T value) {
         return this.value.equals(value);
     }

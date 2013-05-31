@@ -12,7 +12,6 @@ public class ReferenceProvider<T> implements Provider<T> {
         this.ref = ref;
     }
 
-    @Override
     public T get() {
         return ref.get();
     }

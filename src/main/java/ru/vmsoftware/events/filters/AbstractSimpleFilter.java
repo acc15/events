@@ -8,7 +8,6 @@ import java.util.List;
  * @since 2013-25-05
  */
 public abstract class AbstractSimpleFilter<T> implements Filter<T> {
-    @Override
     public List<Filter<T>> getUnderlyingObjects() {
         return Collections.emptyList();
     }

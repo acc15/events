@@ -3,8 +3,10 @@ package ru.vmsoftware.events;
 import ru.vmsoftware.events.adapters.MethodAdapter;
 import ru.vmsoftware.events.annotations.Listener;
 import ru.vmsoftware.events.annotations.Listeners;
-import ru.vmsoftware.events.filters.*;
+import ru.vmsoftware.events.filters.EqualsFilter;
 import ru.vmsoftware.events.filters.Filter;
+import ru.vmsoftware.events.filters.Filters;
+import ru.vmsoftware.events.filters.StringFilter;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -19,6 +21,7 @@ public class Events {
 
     /**
      * Shorthand for {@code Events.init(obj, Events.getManager())}
+     *
      * @see #init(Object, Registrar)
      */
     public static void init(Object obj) {
@@ -32,16 +35,17 @@ public class Events {
      * <p>Note that if object contains {@link ru.vmsoftware.events.annotations.Listener listener} annotation with
      * specified {@link ru.vmsoftware.events.annotations.Listener#field field} - then
      * this field should already been initialized.</p>
-     * @param obj object to initialize
+     *
+     * @param obj       object to initialize
      * @param registrar registrar for registering annotated {@link MethodAdapter method listeners}
      */
     public static Registrar init(Object obj, Registrar registrar) {
         Class<?> clazz = obj.getClass();
         do {
-            for (Method m: clazz.getDeclaredMethods()) {
+            for (Method m : clazz.getDeclaredMethods()) {
                 final Listeners listeners = m.getAnnotation(Listeners.class);
                 if (listeners != null) {
-                    for (Listener l: listeners.value()) {
+                    for (Listener l : listeners.value()) {
                         processAnnotation(registrar, obj, m, l);
                     }
                 }
@@ -58,6 +62,7 @@ public class Events {
 
     /**
      * Shorthand for {@code Events.getManager().cleanup()}
+     *
      * @see EventManager#cleanup()
      */
     public static void cleanup() {
@@ -66,6 +71,7 @@ public class Events {
 
     /**
      * Shorthand for {@code Events.getManager().mute(obj)}
+     *
      * @see EventManager#mute(Object)
      */
     public static void mute(Object obj) {
@@ -74,6 +80,7 @@ public class Events {
 
     /**
      * Shorthand for {@code Events.getManager().createRegistrar()}
+     *
      * @see EventManager#createRegistrar()
      */
     public static Registrar createRegistrar() {
@@ -82,6 +89,7 @@ public class Events {
 
     /**
      * Returns current {@link EventManager}
+     *
      * @return current {@link EventManager}
      */
     public static EventManager getManager() {
@@ -90,7 +98,8 @@ public class Events {
 
     /**
      * Shorthand for {@code Events.getManager().emit(emitter, event))}
-     * @see EventManager#emit(Object,Object)
+     *
+     * @see EventManager#emit(Object, Object)
      */
     public static boolean emit(Object emitter, Object type) {
         return getManager().emit(emitter, type);
@@ -98,7 +107,8 @@ public class Events {
 
     /**
      * Shorthand for {@code Events.getManager().emit(emitter, type, data))}
-     * @see EventManager#emit(Object,Object,Object)
+     *
+     * @see EventManager#emit(Object, Object, Object)
      */
     public static boolean emit(Object emitter, Object type, Object data) {
         return getManager().emit(emitter, type, data);
@@ -106,6 +116,7 @@ public class Events {
 
     /**
      * Shorthand for {@code Events.getManager().listen(emitter, type, listener)}
+     *
      * @see EventManager#listen(Object, Object, EventListener)
      */
     public static void listen(Object emitter, Object type, EventListener listener) {
@@ -155,7 +166,7 @@ public class Events {
             if (!(container instanceof TagContainer<?>)) {
                 throw new IllegalArgumentException("object should implement TagContainer interface");
             }
-            emitter = ((TagContainer<?>)container).getByTag(listener.tag());
+            emitter = ((TagContainer<?>) container).getByTag(listener.tag());
         }
 
         final Filter<Object> typeFilter = getFilterByClassAndPattern(listener.eventClass(), listener.event());

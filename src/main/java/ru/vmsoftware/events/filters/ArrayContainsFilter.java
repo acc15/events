@@ -9,9 +9,8 @@ public class ArrayContainsFilter<T> extends AbstractSimpleFilter<T> {
         this.array = array;
     }
 
-    @Override
     public boolean filter(T value) {
-        for (T val: array) {
+        for (T val : array) {
             if (value.equals(val)) {
                 return true;
             }

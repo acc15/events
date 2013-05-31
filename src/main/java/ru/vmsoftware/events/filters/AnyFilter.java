@@ -5,7 +5,6 @@ package ru.vmsoftware.events.filters;
  * @since 2013-28-04
  */
 class AnyFilter<T> extends AbstractSimpleFilter<T> {
-    @Override
     public boolean filter(T value) {
         return true;
     }

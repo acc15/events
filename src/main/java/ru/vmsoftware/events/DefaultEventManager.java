@@ -13,7 +13,8 @@ import java.util.Iterator;
 
 import static ru.vmsoftware.events.providers.Providers.strongRef;
 
-/** @author Vyacheslav Mayorov
+/**
+ * @author Vyacheslav Mayorov
  * @since 2013-28-04
  */
 class DefaultEventManager implements EventManager {
@@ -38,7 +39,7 @@ class DefaultEventManager implements EventManager {
             }
 
             public void cleanup() {
-                for (ListenerEntry l: entries) {
+                for (ListenerEntry l : entries) {
                     list.remove(l);
                 }
                 entries.clear();
@@ -115,7 +116,7 @@ class DefaultEventManager implements EventManager {
         return list.isEmpty();
     }
 
-    ListenerEntry createEntry(Object emitter, Object type, EventListener<?,?,?> listener) {
+    ListenerEntry createEntry(Object emitter, Object type, EventListener<?, ?, ?> listener) {
         ensureNotNull("emitter can't be null", emitter);
         ensureNotNull("type can't be null", type);
         ensureNotNull("listener can't be null", listener);
@@ -152,7 +153,7 @@ class DefaultEventManager implements EventManager {
         if (obj instanceof Filter) {
             return (Filter) obj;
         } else if (obj instanceof Class<?>) {
-            return Filters.instanceOf((Class<?>)obj);
+            return Filters.instanceOf((Class<?>) obj);
         } else {
             return Filters.sameInstance(obj);
         }

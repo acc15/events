@@ -1,8 +1,8 @@
 package ru.vmsoftware.events.linked;
 
-import ru.vmsoftware.events.references.AbstractReferenceContainer;
 import ru.vmsoftware.events.providers.Provider;
 import ru.vmsoftware.events.providers.ReferenceProvider;
+import ru.vmsoftware.events.references.AbstractReferenceContainer;
 
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
@@ -21,7 +21,6 @@ public class CustomWeakLinkedList<E extends CustomWeakLinkedList.WeakEntry<E>> e
             this.entry = entry;
         }
 
-        @Override
         protected <T> Provider<T> manageObject(T obj) {
             return new ReferenceProvider<T>(entry.addRef(obj, staleRefs));
         }
@@ -33,27 +32,23 @@ public class CustomWeakLinkedList<E extends CustomWeakLinkedList.WeakEntry<E>> e
         return new WeakEntryContainer(entry);
     }
 
-    @Override
     public Iterator<E> iterator() {
         return new WeakIterator();
     }
 
-    @Override
     public boolean isEmpty() {
         cleanupStaleRefs();
         return super.isEmpty();
     }
 
-    @Override
     protected void insertBetween(E left, E right, E entry) {
         cleanupStaleRefs();
         super.insertBetween(left, right, entry);
     }
 
-    @Override
     protected void cleanupEntry(E entry) {
         super.cleanupEntry(entry);
-        for (Ref<?,E> ref: entry.references) {
+        for (Ref<?, E> ref : entry.references) {
             ref.entry = null;
         }
         entry.references.clear();
@@ -63,23 +58,23 @@ public class CustomWeakLinkedList<E extends CustomWeakLinkedList.WeakEntry<E>> e
 
         @SuppressWarnings("unchecked")
         public <T> WeakReference<T> addRef(T t, ReferenceQueue<? super T> q) {
-            final Ref<T,E> ref = new Ref<T,E>((E)this, t, q);
+            final Ref<T, E> ref = new Ref<T, E>((E) this, t, q);
             references.add(ref);
             return ref;
         }
 
         @SuppressWarnings("unchecked")
         public <T> WeakReference<T> getRef(int idx) {
-            return (WeakReference<T>)references.get(idx);
+            return (WeakReference<T>) references.get(idx);
         }
 
-        List<Ref<?,E>> references = new ArrayList<Ref<?,E>>();
+        List<Ref<?, E>> references = new ArrayList<Ref<?, E>>();
     }
 
     @SuppressWarnings("unchecked")
     void cleanupStaleRefs() {
-        Ref<?,E> ref;
-        while ((ref = (Ref<?,E>)staleRefs.poll()) != null) {
+        Ref<?, E> ref;
+        while ((ref = (Ref<?, E>) staleRefs.poll()) != null) {
             if (ref.entry == null) {
                 continue;
             }
@@ -92,11 +87,11 @@ public class CustomWeakLinkedList<E extends CustomWeakLinkedList.WeakEntry<E>> e
             super(referent, q);
             this.entry = entry;
         }
+
         private E entry;
     }
 
     class WeakIterator extends CircularListIterator {
-        @Override
         protected E lookupNext(E entry) {
             if (strongRefs == null) {
                 strongRefs = new ArrayList<Object>();
@@ -105,8 +100,9 @@ public class CustomWeakLinkedList<E extends CustomWeakLinkedList.WeakEntry<E>> e
             }
 
             E next = entry;
-            e: while ((next = super.lookupNext(next)) != null) {
-                for (Ref<?,E> ref: next.references) {
+            e:
+            while ((next = super.lookupNext(next)) != null) {
+                for (Ref<?, E> ref : next.references) {
                     final Object o = ref.get();
                     if (o == null) {
                         strongRefs.clear();
