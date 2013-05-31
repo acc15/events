@@ -1,4 +1,4 @@
-events
+Events
 ======
 
 Java Listener framework
@@ -9,31 +9,32 @@ import static ru.vmsoftware.events.Events.*;
 
 emit(this, KeyboardEvent.KEY_DOWN, keyCode);
 
+Registrars
+
 
 Emitters
 
-Emitter is a holder of real emitter instance and serves
-for simplifying emitting events especially when emitting from inner classes.
+Emitter is a holder of real emitter instance and allow to simplify event emitting,
+especially when emitting from inner classes.
 
 Was:
 
-  public void doWork() {
-    emit(this, MyEvent.EVENT_1);
-    // ... do some work ...
-    emit(this, MyEvent.EVENT_5, data);
-  }
+    public void doWork() {
+        emit(this, MyEvent.EVENT_1);
+        // ... do some work ...
+        emit(this, MyEvent.EVENT_5, data);
+    }
 
 Become:
 
-  void init() {
-    // ... somewhere in initialization code ...
-    emitter = Events.emitter(this).event(MyEvent.EVENT_1, data);
-  }
+    void init() {
+        // ... somewhere in initialization code ...
+        emitter = Events.emitter(this);
+    }
 
-  public void doWork() {
-
-    // process implementation
-    emitter.emit(event(MyEvent.EVENT_1));
-    // ... do some work ...
-    emitter.emit(event(MyEvent.EVENT_5, data));
-  }
+    public void doWork() {
+        // process implementation
+        emitter.emit(MyEvent.EVENT_1);
+        // ... do some work ...
+        emitter.emit(MyEvent.EVENT_5, data);
+    }

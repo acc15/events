@@ -18,10 +18,8 @@ public interface EventManager extends Registrar {
      * @param emitter real event emitter
      * @return {@link Emitter}
      * @see Emitter
-     *
-     * TODO write tests & implement
      */
-    //Emitter createEmitter(Object emitter);
+    Emitter createEmitter(Object emitter);
 
     /**
      * Convenient shorthand for {@link #emit(Object,Object,Object) emit(emitter, type, null))}
