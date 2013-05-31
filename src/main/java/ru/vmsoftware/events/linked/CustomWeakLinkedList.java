@@ -73,7 +73,7 @@ public class CustomWeakLinkedList<E extends CustomWeakLinkedList.WeakEntry<E>> e
             return (WeakReference<T>)references.get(idx);
         }
 
-        private List<Ref<?,E>> references = new ArrayList<Ref<?,E>>();
+        List<Ref<?,E>> references = new ArrayList<Ref<?,E>>();
     }
 
     @SuppressWarnings("unchecked")
