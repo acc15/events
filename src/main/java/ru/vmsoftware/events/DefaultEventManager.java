@@ -18,16 +18,13 @@ import static ru.vmsoftware.events.providers.Providers.strongRef;
  */
 class DefaultEventManager implements EventManager {
 
-    @Override
     public Registrar createRegistrar() {
         return new Registrar() {
 
-            @Override
             public void listen(Object emitter, Object type, EventListener listener) {
                 entries.add(createEntry(createFilterByObject(emitter), createFilterByObject(type), listener));
             }
 
-            @Override
             public void mute(Object listener) {
                 final Iterator<ListenerEntry> iter = entries.iterator();
                 while (iter.hasNext()) {
@@ -40,7 +37,6 @@ class DefaultEventManager implements EventManager {
                 }
             }
 
-            @Override
             public void cleanup() {
                 for (ListenerEntry l: entries) {
                     list.remove(l);
@@ -48,7 +44,6 @@ class DefaultEventManager implements EventManager {
                 entries.clear();
             }
 
-            @Override
             public boolean isClean() {
                 return entries.isEmpty();
             }
@@ -57,17 +52,14 @@ class DefaultEventManager implements EventManager {
         };
     }
 
-    @Override
     public void listen(Object emitter, Object type, EventListener listener) {
         createEntry(emitter, type, listener);
     }
 
-    @Override
     public boolean emit(Object emitter, Object type) {
         return emit(emitter, type, null);
     }
 
-    @Override
     @SuppressWarnings("unchecked")
     public boolean emit(Object emitter, Object type, Object data) {
         ensureNotNull("emitter can't be null", emitter);
@@ -93,7 +85,6 @@ class DefaultEventManager implements EventManager {
         return true;
     }
 
-    @Override
     public void mute(Object listener) {
         final Iterator<ListenerEntry> iter = list.iterator();
         while (iter.hasNext()) {
@@ -104,12 +95,10 @@ class DefaultEventManager implements EventManager {
         }
     }
 
-    @Override
     public void cleanup() {
         list.clear();
     }
 
-    @Override
     public boolean isClean() {
         return list.isEmpty();
     }
@@ -136,7 +125,6 @@ class DefaultEventManager implements EventManager {
             this.listenerProvider = strongRef(listener);
         }
 
-        @Override
         public void initReferences(ReferenceContainer referenceContainer) {
             emitterFilterProvider = referenceContainer.manage(emitterFilterProvider, ManagementType.MANUAL);
             typeFilterProvider = referenceContainer.manage(typeFilterProvider, ManagementType.MANUAL);
