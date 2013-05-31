@@ -1,12 +1,10 @@
 package ru.vmsoftware.events.filters;
 
-import ru.vmsoftware.events.references.CompositeObject;
-
 /**
  * @author Vyacheslav Mayorov
  * @since 2013-18-04
  */
-public interface Filter<T> extends CompositeObject<Filter<T>> {
+public interface Filter<T> {
 
     /**
      * Checks that specified value satisfies current filter.

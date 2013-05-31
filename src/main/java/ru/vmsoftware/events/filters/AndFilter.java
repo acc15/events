@@ -1,12 +1,14 @@
 package ru.vmsoftware.events.filters;
 
+import ru.vmsoftware.events.references.CompositeObject;
+
 import java.util.List;
 
 /**
  * @author Vyacheslav Mayorov
  * @since 2013-08-05
  */
-class AndFilter<T> implements Filter<T> {
+class AndFilter<T> implements Filter<T>, CompositeObject<Filter<T>> {
 
     AndFilter(List<Filter<T>> filters) {
         this.filters = filters;

@@ -4,7 +4,7 @@ package ru.vmsoftware.events.filters;
  * @author Vyacheslav Mayorov
  * @since 2013-28-04
  */
-public class ArrayContainsFilter<T> extends AbstractSimpleFilter<T> {
+public class ArrayContainsFilter<T> implements Filter<T> {
     public ArrayContainsFilter(T... array) {
         this.array = array;
     }
