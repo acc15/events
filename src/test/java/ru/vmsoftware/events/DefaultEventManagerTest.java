@@ -222,7 +222,7 @@ public class DefaultEventManagerTest implements Serializable {
 
     @Test
     public void testManagerCanCreateRegistrar() throws Exception {
-        final Registrar registrar = manager.createRegistrar();
+        final Registrar registrar = manager.registrar();
         Assertions.assertThat(registrar).isNotNull();
     }
 
@@ -231,7 +231,7 @@ public class DefaultEventManagerTest implements Serializable {
 
         manager.listen(this, eventType, listener);
 
-        final Emitter emitter = manager.createEmitter(this);
+        final Emitter emitter = manager.emitter(this);
         emitter.emit(eventType);
         verify(listener).onEvent(this, eventType, null);
 
@@ -243,7 +243,7 @@ public class DefaultEventManagerTest implements Serializable {
     public void testRegistrarHoldsStateByWeakReferences() throws Exception {
 
         ManagedContainerListener l = new ManagedContainerListener();
-        final Registrar registrar = manager.createRegistrar();
+        final Registrar registrar = manager.registrar();
         registrar.listen(this, Filters.any(), l);
         manager.mute(l);
         l = null;
@@ -256,7 +256,7 @@ public class DefaultEventManagerTest implements Serializable {
 
     @Test
     public void testRegistrarRegisterListeners() throws Exception {
-        final Registrar registrar = manager.createRegistrar();
+        final Registrar registrar = manager.registrar();
         registrar.listen(this, Filters.any(), listener);
         registrar.listen(this, Filters.any(), listener2);
         verifyBothCalled();
@@ -264,7 +264,7 @@ public class DefaultEventManagerTest implements Serializable {
 
     @Test
     public void testRegistrarCleanupListeners() throws Exception {
-        final Registrar registrar = manager.createRegistrar();
+        final Registrar registrar = manager.registrar();
         registrar.listen(this, Filters.any(), listener);
         registrar.listen(this, Filters.any(), listener2);
         registrar.cleanup();
@@ -273,7 +273,7 @@ public class DefaultEventManagerTest implements Serializable {
 
     @Test
     public void testRegistrarRemoveListeners() throws Exception {
-        final Registrar registrar = manager.createRegistrar();
+        final Registrar registrar = manager.registrar();
         registrar.listen(this, Filters.any(), listener);
         registrar.listen(this, Filters.any(), listener2);
         registrar.mute(listener2);
@@ -282,7 +282,7 @@ public class DefaultEventManagerTest implements Serializable {
 
     @Test
     public void testRegisterCanRemoveOnlyRegisteredListeners() throws Exception {
-        final Registrar registrar = manager.createRegistrar();
+        final Registrar registrar = manager.registrar();
         registrar.listen(this, Filters.any(), listener2);
         manager.listen(this, Filters.any(), listener);
         registrar.mute(listener);
@@ -292,7 +292,7 @@ public class DefaultEventManagerTest implements Serializable {
 
     @Test
     public void testRegistrarCleanupOnlyRegisteredListeners() throws Exception {
-        final Registrar registrar = manager.createRegistrar();
+        final Registrar registrar = manager.registrar();
         registrar.listen(this, Filters.any(), listener2);
         manager.listen(this, Filters.any(), listener);
         registrar.cleanup();

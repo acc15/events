@@ -79,12 +79,21 @@ public class Events {
     }
 
     /**
-     * Shorthand for {@code Events.getManager().createRegistrar()}
+     * Shorthand for {@code Events.getManager().registrar()}
      *
-     * @see EventManager#createRegistrar()
+     * @see EventManager#registrar()
      */
-    public static Registrar createRegistrar() {
-        return manager.createRegistrar();
+    public static Registrar registrar() {
+        return manager.registrar();
+    }
+
+    /**
+     * Shorthand for {@code Events.getManager().emitter(emitter)}
+     *
+     * @see EventManager#emitter(Object)
+     */
+    public static Emitter emitter(Object emitter) {
+        return manager.emitter(emitter);
     }
 
     /**
@@ -177,6 +186,4 @@ public class Events {
     }
 
     static EventManager manager = new DefaultEventManager();
-
-
 }

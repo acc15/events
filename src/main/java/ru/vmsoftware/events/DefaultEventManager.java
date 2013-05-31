@@ -19,7 +19,7 @@ import static ru.vmsoftware.events.providers.Providers.strongRef;
  */
 class DefaultEventManager implements EventManager {
 
-    public Registrar createRegistrar() {
+    public Registrar registrar() {
         return new Registrar() {
 
             public void listen(Object emitter, Object type, EventListener listener) {
@@ -53,7 +53,7 @@ class DefaultEventManager implements EventManager {
         };
     }
 
-    public Emitter createEmitter(final Object emitter) {
+    public Emitter emitter(final Object emitter) {
         return new Emitter() {
             public boolean emit(Object type) {
                 return DefaultEventManager.this.emit(emitter, type);

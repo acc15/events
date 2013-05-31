@@ -12,7 +12,7 @@ public interface EventManager extends Registrar {
      * @return {@link Registrar}
      * @see Registrar
      */
-    Registrar createRegistrar();
+    Registrar registrar();
 
     /**
      * Creates new event emitter
@@ -21,7 +21,7 @@ public interface EventManager extends Registrar {
      * @return {@link Emitter}
      * @see Emitter
      */
-    Emitter createEmitter(Object emitter);
+    Emitter emitter(Object emitter);
 
     /**
      * Convenient shorthand for {@link #emit(Object, Object, Object) emit(emitter, type, null))}

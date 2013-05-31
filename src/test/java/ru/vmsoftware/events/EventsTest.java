@@ -3,6 +3,10 @@ package ru.vmsoftware.events;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Answers;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import ru.vmsoftware.events.annotations.Listener;
 
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -41,12 +45,17 @@ public class EventsTest {
         A
     }
 
+    @Mock(answer = Answers.CALLS_REAL_METHODS)
+    private DefaultEventManager manager;
+
+
     private EventManager restoreManager;
 
     @Before
     public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
         restoreManager = Events.manager;
-        Events.manager = new DefaultEventManager();
+        Events.manager = manager;
     }
 
     @After
@@ -57,7 +66,7 @@ public class EventsTest {
     @Test
     public void testInitShouldAddListenersFromParentClass() throws Exception {
         testListener(new ParentListener() {
-        }, TestEnum2.A, false);
+        }, TestEnum.A, true);
     }
 
     @Test
@@ -190,6 +199,11 @@ public class EventsTest {
         }, TestEnum.A, false);
     }
 
+    @Test
+    public void testEmitter() throws Exception {
+        final Emitter emitter = Events.emitter(this);
+        Mockito.verify(manager).emitter(this);
+    }
 
     private void testListener(ListenerBase listener, Object event, boolean isGlobal) {
         testListener(listener, event, event, isGlobal);
