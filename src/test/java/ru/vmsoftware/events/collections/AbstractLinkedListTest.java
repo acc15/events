@@ -1,4 +1,4 @@
-package ru.vmsoftware.events.linked;
+package ru.vmsoftware.events.collections;
 
 import org.junit.Test;
 

@@ -2,8 +2,8 @@ package ru.vmsoftware.events;
 
 import ru.vmsoftware.events.filters.Filter;
 import ru.vmsoftware.events.filters.Filters;
-import ru.vmsoftware.events.linked.CustomWeakLinkedList;
-import ru.vmsoftware.events.linked.WeakLinkedList;
+import ru.vmsoftware.events.collections.CustomWeakLinkedList;
+import ru.vmsoftware.events.collections.WeakLinkedList;
 import ru.vmsoftware.events.providers.Provider;
 import ru.vmsoftware.events.references.ContainerManaged;
 import ru.vmsoftware.events.references.ManagementType;
