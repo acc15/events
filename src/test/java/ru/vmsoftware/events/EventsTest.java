@@ -3,10 +3,9 @@ package ru.vmsoftware.events;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Answers;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 import ru.vmsoftware.events.annotations.Listener;
 
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -45,14 +44,14 @@ public class EventsTest {
         A
     }
 
-    @Mock(answer = Answers.CALLS_REAL_METHODS)
+    @Spy
     private DefaultEventManager manager;
-
 
     private EventManager restoreManager;
 
     @Before
     public void setUp() throws Exception {
+        this.manager = new DefaultEventManager();
         MockitoAnnotations.initMocks(this);
         restoreManager = Events.manager;
         Events.manager = manager;
@@ -65,8 +64,7 @@ public class EventsTest {
 
     @Test
     public void testInitShouldAddListenersFromParentClass() throws Exception {
-        testListener(new ParentListener() {
-        }, TestEnum.A, true);
+        testListener(new ParentListener() {}, TestEnum.A, false);
     }
 
     @Test
