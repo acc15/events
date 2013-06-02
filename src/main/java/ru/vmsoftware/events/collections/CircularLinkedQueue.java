@@ -8,7 +8,7 @@ import java.util.NoSuchElementException;
  * @author Vyacheslav Mayorov
  * @since 2013-03-05
  */
-public class CircularLinkedList<E extends DoubleLinkedEntry<E>> implements DoubleLinkedList<E> {
+public class CircularLinkedQueue<E extends DoubleLinkedEntry<E>> implements DoubleLinkedList<E> {
 
     public boolean isEmpty() {
         return last == null;
@@ -108,7 +108,7 @@ public class CircularLinkedList<E extends DoubleLinkedEntry<E>> implements Doubl
                 throw new IllegalStateException();
             }
             ++expectedModCount;
-            CircularLinkedList.this.remove(lastReturned);
+            CircularLinkedQueue.this.remove(lastReturned);
             lastReturned = null;
         }
 
@@ -136,4 +136,5 @@ public class CircularLinkedList<E extends DoubleLinkedEntry<E>> implements Doubl
 
     private volatile int modCount = 0;
     private E last;
+
 }

@@ -5,7 +5,7 @@ import ru.vmsoftware.events.providers.StrongProvider;
 import java.util.Iterator;
 
 /**
- * Simple adapter for {@link CustomWeakLinkedList} which
+ * Simple adapter for {@link CustomWeakLinkedQueue} which
  * hides entry operations providing simple object interface
  *
  * @author Vyacheslav Mayorov
@@ -13,7 +13,7 @@ import java.util.Iterator;
  */
 public class WeakLinkedList<T> implements DoubleLinkedList<T> {
 
-    static class SimpleWeakEntry<T> extends CustomWeakLinkedList.WeakEntry<SimpleWeakEntry<T>> {
+    static class SimpleWeakEntry<T> extends CustomWeakLinkedQueue.WeakEntry<SimpleWeakEntry<T>> {
     }
 
     public boolean isEmpty() {
@@ -48,5 +48,5 @@ public class WeakLinkedList<T> implements DoubleLinkedList<T> {
         };
     }
 
-    private CustomWeakLinkedList<SimpleWeakEntry<T>> list = new CustomWeakLinkedList<SimpleWeakEntry<T>>();
+    private CustomWeakLinkedQueue<SimpleWeakEntry<T>> list = new CustomWeakLinkedQueue<SimpleWeakEntry<T>>();
 }

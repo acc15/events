@@ -14,7 +14,7 @@ import java.util.List;
  * @author Vyacheslav Mayorov
  * @since 2013-04-05
  */
-public class CustomWeakLinkedList<E extends CustomWeakLinkedList.WeakEntry<E>> extends CircularLinkedList<E> {
+public class CustomWeakLinkedQueue<E extends CustomWeakLinkedQueue.WeakEntry<E>> extends CircularLinkedQueue<E> {
 
     public class WeakEntryContainer extends AbstractReferenceContainer {
         public WeakEntryContainer(E entry) {

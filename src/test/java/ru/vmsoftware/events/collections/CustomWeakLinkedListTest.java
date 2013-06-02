@@ -15,19 +15,19 @@ import static org.fest.assertions.api.Assertions.assertThat;
  */
 public class CustomWeakLinkedListTest extends AbstractLinkedListTest<CustomWeakLinkedListTest.TestWeakEntry> {
 
-    private CustomWeakLinkedList<TestWeakEntry> list = new CustomWeakLinkedList<TestWeakEntry>();
+    private CustomWeakLinkedQueue<TestWeakEntry> list = new CustomWeakLinkedQueue<TestWeakEntry>();
 
     private TestWeakEntry createEntry(Object... refs) {
         final TestWeakEntry entry = new TestWeakEntry();
-        final CustomWeakLinkedList.WeakEntryContainer container = list.createEntryContainer(entry);
+        final CustomWeakLinkedQueue.WeakEntryContainer container = list.createEntryContainer(entry);
         for (Object ref : refs) {
             container.manage(new StrongProvider<Object>(ref));
         }
         return entry;
     }
 
-    static <E extends CustomWeakLinkedList.WeakEntry<E>> CustomWeakLinkedList<E>.WeakEntryContainer ref(
-            CustomWeakLinkedList<E>.WeakEntryContainer container,
+    static <E extends CustomWeakLinkedQueue.WeakEntry<E>> CustomWeakLinkedQueue<E>.WeakEntryContainer ref(
+            CustomWeakLinkedQueue<E>.WeakEntryContainer container,
             Object ref) {
         container.manage(new StrongProvider<Object>(ref));
         return container;
@@ -48,7 +48,7 @@ public class CustomWeakLinkedListTest extends AbstractLinkedListTest<CustomWeakL
         return testEntries;
     }
 
-    protected CircularLinkedList<TestWeakEntry> getList() {
+    protected CircularLinkedQueue<TestWeakEntry> getList() {
         return list;
     }
 
@@ -90,7 +90,7 @@ public class CustomWeakLinkedListTest extends AbstractLinkedListTest<CustomWeakL
         TestUtils.assertIterator(iter, testEntries[1]);
     }
 
-    static class TestWeakEntry extends CustomWeakLinkedList.WeakEntry<TestWeakEntry> {
+    static class TestWeakEntry extends CustomWeakLinkedQueue.WeakEntry<TestWeakEntry> {
 
     }
 

@@ -18,7 +18,7 @@ public abstract class AbstractLinkedListTest<E extends DoubleLinkedEntry<E>> {
 
     protected abstract E[] getTestEntries();
 
-    protected abstract CircularLinkedList<E> getList();
+    protected abstract CircularLinkedQueue<E> getList();
 
     @Test(expected = NoSuchElementException.class)
     public void testClearDoesntModifyListIfItWasEmpty() throws Exception {
