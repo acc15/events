@@ -38,3 +38,8 @@ Become:
         // ... do some work ...
         emitter.emit(MyEvent.EVENT_5, data);
     }
+
+
+Thread safety:
+
+Currently, Events isn't thread safe but there is a plans to make it.
