@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 /**
  * Implementation of non-blocking concurrent linked queue.
  * The key difference between {@link java.util.concurrent.ConcurrentLinkedQueue} is that this
- * collection does expose access to it entries. Without entry access it isn't possible to implement
+ * collection exposes access to entries. Without entry access it isn't possible to implement
  * efficient weak concurrent queue.
  *
  * @author Vyacheslav Mayorov
@@ -40,7 +40,7 @@ public class ConcurrentLinkedQueue<T, E extends LinkedEntry<T,E>> implements Ite
     }
 
     public void clear() {
-        this.lastRef.lazySet(); = null;
+        this.lastRef.lazySet(null);
     }
 
     public Iterator<E> iterator() {
