@@ -6,10 +6,7 @@ package ru.vmsoftware.events.collections;
  */
 interface DoubleLinkedEntry<E extends DoubleLinkedEntry<E>> {
     void setNext(E next);
-
     void setPrevious(E previous);
-
     E getPrevious();
-
     E getNext();
 }
