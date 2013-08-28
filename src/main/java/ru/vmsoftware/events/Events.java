@@ -35,7 +35,7 @@ public class Events {
      * this field should already been initialized.</p>
      *
      * @param obj       object to initialize
-     * @param registrar registrar for registering annotated {@link MethodAdapter method listeners}
+     * @param registrar registrar for registering {@link MethodAdapter method listeners}
      */
     public static Registrar init(Object obj, Registrar registrar) {
         Class<?> clazz = obj.getClass();

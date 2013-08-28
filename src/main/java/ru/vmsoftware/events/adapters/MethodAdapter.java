@@ -26,25 +26,22 @@ public class MethodAdapter implements EventListener, ContainerManaged {
     }
 
     public boolean onEvent(Object emitter, Object type, Object data) {
-        if (method == null) {
-            return true;
-        }
-
         final Object object = provider.get();
         if (object == null) {
             return true;
         }
 
-        final Class<?>[] parameterTypes = method.getParameterTypes();
-        final int parameterCount = parameterTypes.length;
+        final int paramCount = method.getParameterTypes().length;
 
-        Object result = null;
-
-        boolean wasAccessible = method.isAccessible();
+        final boolean wasAccessible = method.isAccessible();
         method.setAccessible(true);
         try {
+            // This duplication is an optimization.
+            // Instead of creating list and then making subList(size - parameterCount, size)
+            // this will make simple and quick method invocation.
 
-            switch (parameterCount) {
+            final Object result;
+            switch (paramCount) {
                 case 0:
                     result = method.invoke(object);
                     break;
@@ -62,8 +59,12 @@ public class MethodAdapter implements EventListener, ContainerManaged {
                     break;
 
                 default:
-                    throw tooManyArguments();
+                    throw new IllegalArgumentException("listener method has too many arguments: " + method);
             }
+            if (result instanceof Boolean) {
+                return (Boolean) result;
+            }
+            return true;
 
         } catch (IllegalAccessException e) {
             throw new RuntimeException("unable to access listener method: " + method, e);
@@ -72,10 +73,6 @@ public class MethodAdapter implements EventListener, ContainerManaged {
         } finally {
             method.setAccessible(wasAccessible);
         }
-        if (result instanceof Boolean) {
-            return (Boolean) result;
-        }
-        return true;
     }
 
     public boolean isCounterpart(Object obj) {
@@ -109,10 +106,6 @@ public class MethodAdapter implements EventListener, ContainerManaged {
         }
         return foundMethod;
 
-    }
-
-    private IllegalArgumentException tooManyArguments() {
-        return new IllegalArgumentException("listener method has too many arguments: " + method);
     }
 
     private Provider<?> provider;
