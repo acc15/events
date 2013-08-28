@@ -9,7 +9,7 @@ import ru.vmsoftware.events.references.ReferenceContainer;
  * @author Vyacheslav Mayorov
  * @since 2013-03-05
  */
-public class SameInstanceFilter<T> implements Filter<T>, ContainerManaged {
+class SameInstanceFilter<T> implements Filter<T>, ContainerManaged {
     SameInstanceFilter(T instance) {
         this.instance = new StrongProvider<T>(instance);
     }

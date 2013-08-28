@@ -16,6 +16,14 @@ public class Filters {
         return (Filter<T>) ANY_FILTER_INSTANCE;
     }
 
+    public static <T> Filter<T> equalTo(T value) {
+        return new EqualsFilter<T>(value);
+    }
+
+    public static <T> Filter<T> toStringEqualTo(String value) {
+        return new ToStringFilter<T>(value);
+    }
+
     public static <T> Filter<T> sameInstance(T instance) {
         return new SameInstanceFilter<T>(instance);
     }

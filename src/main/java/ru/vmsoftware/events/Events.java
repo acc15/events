@@ -3,10 +3,8 @@ package ru.vmsoftware.events;
 import ru.vmsoftware.events.adapters.MethodAdapter;
 import ru.vmsoftware.events.annotations.Listener;
 import ru.vmsoftware.events.annotations.Listeners;
-import ru.vmsoftware.events.filters.EqualsFilter;
 import ru.vmsoftware.events.filters.Filter;
 import ru.vmsoftware.events.filters.Filters;
-import ru.vmsoftware.events.filters.StringFilter;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -160,7 +158,7 @@ public class Events {
             filters.add(Filters.instanceOf(clazz));
         }
         if (pattern.length() > 0) {
-            filters.add(new StringFilter<Object>(pattern));
+            filters.add(Filters.toStringEqualTo(pattern));
         }
         return Filters.and(filters);
     }
@@ -181,7 +179,7 @@ public class Events {
         final Filter<Object> typeFilter = getFilterByClassAndPattern(listener.eventClass(), listener.event());
         final MethodAdapter methodAdapter = new MethodAdapter(obj, method);
         registrar.listen(emitter != null
-                ? new EqualsFilter<Object>(emitter)
+                ? Filters.equalTo(emitter)
                 : getFilterByClassAndPattern(listener.emitterClass(), listener.emitter()), typeFilter, methodAdapter);
     }
 

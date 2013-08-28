@@ -4,9 +4,9 @@ package ru.vmsoftware.events.filters;
  * @author Vyacheslav Mayorov
  * @since 2013-28-04
  */
-public class StringFilter<T> implements Filter<T> {
+class ToStringFilter<T> implements Filter<T> {
 
-    public StringFilter(String value) {
+    public ToStringFilter(String value) {
         this.value = value;
     }
 

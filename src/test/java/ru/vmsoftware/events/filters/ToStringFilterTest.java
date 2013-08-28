@@ -8,7 +8,7 @@ import static org.fest.assertions.api.Assertions.assertThat;
  * @author Vyacheslav Mayorov
  * @since 2013-28-04
  */
-public class StringFilterTest {
+public class ToStringFilterTest {
 
     enum TestEnum {
         A,
@@ -21,7 +21,7 @@ public class StringFilterTest {
 
     @Test
     public void testFilterReturnTrueOnlyForSpecificValues() throws Exception {
-        final Filter<Object> filter = new StringFilter<Object>("A");
+        final Filter<Object> filter = new ToStringFilter<Object>("A");
         assertThat(filter.filter(TestEnum.A)).isTrue();
         assertThat(filter.filter(TestEnum2.A)).isTrue();
         assertThat(filter.filter(TestEnum.B)).isFalse();
