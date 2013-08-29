@@ -1,7 +1,7 @@
 package ru.vmsoftware.events.filters;
 
 import ru.vmsoftware.events.providers.Provider;
-import ru.vmsoftware.events.providers.StrongProvider;
+import ru.vmsoftware.events.providers.Providers;
 import ru.vmsoftware.events.references.ContainerManaged;
 import ru.vmsoftware.events.references.ReferenceContainer;
 
@@ -11,7 +11,7 @@ import ru.vmsoftware.events.references.ReferenceContainer;
  */
 class SameInstanceFilter<T> implements Filter<T>, ContainerManaged {
     SameInstanceFilter(T instance) {
-        this.instance = new StrongProvider<T>(instance);
+        this.instance = Providers.strongRef(instance);
     }
 
     public boolean filter(T value) {

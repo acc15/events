@@ -3,7 +3,7 @@ package ru.vmsoftware.events.adapters;
 import org.apache.commons.lang.ObjectUtils;
 import ru.vmsoftware.events.EventListener;
 import ru.vmsoftware.events.providers.Provider;
-import ru.vmsoftware.events.providers.StrongProvider;
+import ru.vmsoftware.events.providers.Providers;
 import ru.vmsoftware.events.references.ContainerManaged;
 import ru.vmsoftware.events.references.ReferenceContainer;
 
@@ -21,7 +21,7 @@ public class MethodAdapter implements EventListener, ContainerManaged {
     }
 
     public MethodAdapter(Object obj, Method method) {
-        this.provider = new StrongProvider<Object>(obj);
+        this.provider = Providers.strongRef(obj);
         this.method = method;
     }
 

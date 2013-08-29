@@ -1,19 +1,19 @@
 package ru.vmsoftware.events.collections;
 
-import ru.vmsoftware.events.providers.StrongProvider;
+import ru.vmsoftware.events.providers.Providers;
 
 import java.util.Iterator;
 
 /**
- * Simple adapter for {@link CustomWeakLinkedQueue} which
+ * Simple adapter for {@link CustomWeakOpenLinkedQueue} which
  * hides entry operations providing simple object interface
  *
  * @author Vyacheslav Mayorov
  * @since 2013-01-05
  */
-public class WeakLinkedList<T> implements DoubleLinkedList<T> {
+public class WeakLinkedQueue<T> implements SimpleQueue<T> {
 
-    static class SimpleWeakEntry<T> extends CustomWeakLinkedQueue.WeakEntry<SimpleWeakEntry<T>> {
+    static class SimpleWeakEntry<T> extends CustomWeakOpenLinkedQueue.WeakEntry<SimpleWeakEntry<T>> {
     }
 
     public boolean isEmpty() {
@@ -26,7 +26,7 @@ public class WeakLinkedList<T> implements DoubleLinkedList<T> {
 
     public void add(T value) {
         final SimpleWeakEntry<T> entry = new SimpleWeakEntry<T>();
-        list.createEntryContainer(entry).manage(new StrongProvider<T>(value));
+        list.createEntryContainer(entry).manage(Providers.strongRef(value));
         list.add(entry);
     }
 
@@ -37,7 +37,7 @@ public class WeakLinkedList<T> implements DoubleLinkedList<T> {
             }
 
             public T next() {
-                return entryIterator.next().<T>getRef(0).get();
+                return entryIterator.next().<T>getRef().get();
             }
 
             public void remove() {
@@ -48,5 +48,5 @@ public class WeakLinkedList<T> implements DoubleLinkedList<T> {
         };
     }
 
-    private CustomWeakLinkedQueue<SimpleWeakEntry<T>> list = new CustomWeakLinkedQueue<SimpleWeakEntry<T>>();
+    private CustomWeakOpenLinkedQueue<SimpleWeakEntry<T>> list = new CustomWeakOpenLinkedQueue<SimpleWeakEntry<T>>();
 }

@@ -1,9 +1,9 @@
 package ru.vmsoftware.events;
 
-import ru.vmsoftware.events.collections.CustomWeakLinkedQueue;
+import ru.vmsoftware.events.collections.CustomWeakOpenLinkedQueue;
 import ru.vmsoftware.events.filters.Filter;
 import ru.vmsoftware.events.filters.Filters;
-import ru.vmsoftware.events.collections.WeakLinkedList;
+import ru.vmsoftware.events.collections.WeakLinkedQueue;
 import ru.vmsoftware.events.providers.Provider;
 import ru.vmsoftware.events.references.ContainerManaged;
 import ru.vmsoftware.events.references.ManagementType;
@@ -49,7 +49,7 @@ class DefaultEventManager implements EventManager {
                 return entries.isEmpty();
             }
 
-            private WeakLinkedList<ListenerEntry> entries = new WeakLinkedList<ListenerEntry>();
+            private WeakLinkedQueue<ListenerEntry> entries = new WeakLinkedQueue<ListenerEntry>();
         };
     }
 
@@ -131,7 +131,7 @@ class DefaultEventManager implements EventManager {
         return entry;
     }
 
-    static class ListenerEntry extends CustomWeakLinkedQueue.WeakEntry<ListenerEntry> implements ContainerManaged {
+    static class ListenerEntry extends CustomWeakOpenLinkedQueue.WeakEntry<ListenerEntry> implements ContainerManaged {
         ListenerEntry(Filter emitterFilter, Filter typeFilter, EventListener listener) {
             this.emitterFilterProvider = strongRef(emitterFilter);
             this.typeFilterProvider = strongRef(typeFilter);
@@ -169,5 +169,5 @@ class DefaultEventManager implements EventManager {
         }
     }
 
-    CustomWeakLinkedQueue<ListenerEntry> list = new CustomWeakLinkedQueue<ListenerEntry>();
+    CustomWeakOpenLinkedQueue<ListenerEntry> list = new CustomWeakOpenLinkedQueue<ListenerEntry>();
 }
