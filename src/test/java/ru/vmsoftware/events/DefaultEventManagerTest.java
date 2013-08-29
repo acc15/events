@@ -10,7 +10,6 @@ import org.mockito.MockitoAnnotations;
 import ru.vmsoftware.events.adapters.MethodAdapter;
 import ru.vmsoftware.events.adapters.SimpleAdapter;
 import ru.vmsoftware.events.annotations.ManagedBy;
-import ru.vmsoftware.events.filters.EqualsFilter;
 import ru.vmsoftware.events.filters.Filter;
 import ru.vmsoftware.events.filters.Filters;
 import ru.vmsoftware.events.references.ManagementType;
@@ -99,8 +98,8 @@ public class DefaultEventManagerTest implements Serializable {
 
     @Test
     public void testManagerDoesntCallListenerIfEventTypeNotMatched() throws Exception {
-        manager.listen(this, new EqualsFilter<Object>(eventType), listener);
-        manager.listen(this, new EqualsFilter<String>("xyz"), listener2);
+        manager.listen(this, Filters.equalTo(eventType), listener);
+        manager.listen(this, Filters.equalTo("xyz"), listener2);
         verifyOnlyFirstCalled();
     }
 

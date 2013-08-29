@@ -1,7 +1,7 @@
 package ru.vmsoftware.events;
 
 /**
- * <p>Emitter is an interface to implementations which simplifies method
+ * <p>Emitter is an interface which implementations should simplify event
  * emitting by holding reference to real emitter object as internal state.</p>
  * <p>Also implementations may provide some additional functionality.</p><p><b>For example:</b>
  * emitter proxy can force event handling in another thread

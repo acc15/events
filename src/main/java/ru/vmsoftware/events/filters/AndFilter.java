@@ -8,7 +8,7 @@ import java.util.List;
  * @author Vyacheslav Mayorov
  * @since 2013-08-05
  */
-public class AndFilter<T> implements Filter<T>, CompositeObject<Filter<T>> {
+class AndFilter<T> implements Filter<T>, CompositeObject<Filter<T>> {
 
     AndFilter(List<Filter<T>> filters) {
         this.filters = filters;
