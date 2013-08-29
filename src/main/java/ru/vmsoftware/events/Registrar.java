@@ -4,8 +4,8 @@ package ru.vmsoftware.events;
  * <p>Registrar is very suitable in the cases when listeners should be removed manually from {@link EventManager}
  * before real listener object will be garbage collected (in this case listeners will be removed automatically)</p>
  * <p>Registrar provides methods for {@link #listen(Object, Object, EventListener) registering},
- * {@link #mute(Object) unregistering} or {@link #cleanup() removal of all} listeners registered by this
- * (and only by this registrar)registrar </p>
+ * {@link #mute(Object) unregistering} and {@link #cleanup() removal of all} listeners registered by this
+ * (and only by this) registrar </p>
  *
  * @author Vyacheslav Mayorov
  * @since 2013-30-04

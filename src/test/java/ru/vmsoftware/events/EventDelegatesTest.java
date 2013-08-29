@@ -5,7 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import ru.vmsoftware.events.adapters.SimpleAdapter;
+import ru.vmsoftware.events.adapters.ListenerAdapter;
 import ru.vmsoftware.events.filters.Filter;
 
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -30,7 +30,7 @@ public class EventDelegatesTest {
             return true;
         }
     };
-    private EventListener listener = new SimpleAdapter() {
+    private EventListener listener = new ListenerAdapter() {
         public boolean onEvent(Object emitter, Object type, Object data) {
             return true;
         }

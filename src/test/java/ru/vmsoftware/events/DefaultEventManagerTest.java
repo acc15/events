@@ -7,8 +7,8 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import ru.vmsoftware.events.adapters.ListenerAdapter;
 import ru.vmsoftware.events.adapters.MethodAdapter;
-import ru.vmsoftware.events.adapters.SimpleAdapter;
 import ru.vmsoftware.events.annotations.ManagedBy;
 import ru.vmsoftware.events.filters.Filter;
 import ru.vmsoftware.events.filters.Filters;
@@ -123,7 +123,7 @@ public class DefaultEventManagerTest implements Serializable {
     }
 
     @ManagedBy(ManagementType.CONTAINER)
-    private static class ManagedContainerListener extends SimpleAdapter {
+    private static class ManagedContainerListener extends ListenerAdapter {
         public boolean onEvent(Object emitter, Object type, Object event) {
             return true;
         }
@@ -143,7 +143,7 @@ public class DefaultEventManagerTest implements Serializable {
     }
 
     @ManagedBy(ManagementType.MANUAL)
-    private static class ManualManagedListener extends SimpleAdapter {
+    private static class ManualManagedListener extends ListenerAdapter {
         public boolean onEvent(Object emitter, Object type, Object event) {
             return true;
         }
@@ -181,7 +181,7 @@ public class DefaultEventManagerTest implements Serializable {
 
     @Test
     public void testManagerHoldsListenerByStrongRef() throws Exception {
-        EventListener<Object, Object, Object> l = new SimpleAdapter<Object, Object, Object>() {
+        EventListener<Object, Object, Object> l = new ListenerAdapter<Object, Object, Object>() {
             public boolean onEvent(Object emitter, Object type, Object event) {
                 return true;
             }
