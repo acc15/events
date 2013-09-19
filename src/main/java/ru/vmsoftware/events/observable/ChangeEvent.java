@@ -6,13 +6,19 @@ package ru.vmsoftware.events.observable;
  */
 public class ChangeEvent<T> {
 
-    public static final Object TYPE = new Object();
-
     private T oldValue;
     private T newValue;
 
+    public ChangeEvent(T oldValue, T newValue) {
+        this.oldValue = oldValue;
+        this.newValue = newValue;
+    }
 
+    public T getOldValue() {
+        return oldValue;
+    }
 
-
-
+    public T getNewValue() {
+        return newValue;
+    }
 }
