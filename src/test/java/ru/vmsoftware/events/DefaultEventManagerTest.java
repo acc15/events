@@ -86,14 +86,14 @@ public class DefaultEventManagerTest implements Serializable {
 
     @Test
     public void testEmitShouldCallListenersRegisteredWithInterfaceOrParentClass() throws Exception {
-        manager.listen(Serializable.class, Filters.any(), listener);
+        manager.listen(Filters.instanceOf(Serializable.class), Filters.any(), listener);
         manager.emit(this, eventType, eventData);
         verify(listener).handleEvent(this, eventType, eventData);
     }
 
     @Test
     public void testEmittedEventsDeliveredIfListenerAddForEmitterClass() throws Exception {
-        manager.listen(DefaultEventManagerTest.class, Filters.any(), listener);
+        manager.listen(Filters.instanceOf(DefaultEventManagerTest.class), Filters.any(), listener);
         manager.emit(this, eventType, eventData);
         verify(listener).handleEvent(this, eventType, eventData);
     }

@@ -1,5 +1,6 @@
 package ru.vmsoftware.events.filters;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -10,6 +11,14 @@ import java.util.List;
 public class Filters {
 
     private static final AnyFilter<Object> ANY_FILTER_INSTANCE = new AnyFilter<Object>();
+
+    private static <T> List<Filter<T>> wrapWithEqualTo(T... values) {
+        final List<Filter<T>> filterList = new ArrayList<Filter<T>>();
+        for (T v: values) {
+            filterList.add(equalTo(v));
+        }
+        return filterList;
+    }
 
     @SuppressWarnings("unchecked")
     public static <T> Filter<T> any() {
@@ -32,6 +41,10 @@ public class Filters {
         return new InstanceOfFilter<T>(type);
     }
 
+    public static <T> Filter<T> and(T... values) {
+        return and(wrapWithEqualTo(values));
+    }
+
     public static <T> Filter<T> and(Filter<T>... filters) {
         return and(Arrays.asList(filters));
     }
@@ -41,5 +54,20 @@ public class Filters {
             return any();
         }
         return filters.size() > 1 ? new AndFilter<T>(filters) : filters.get(0);
+    }
+
+    public static <T> Filter<T> or(T... values) {
+        return or(wrapWithEqualTo(values));
+    }
+
+    public static <T> Filter<T> or(Filter<T>... filters) {
+        return or(Arrays.asList(filters));
+    }
+
+    public static <T> Filter<T> or(List<Filter<T>> filters) {
+        if (filters.isEmpty()) {
+            return any();
+        }
+        return filters.size() > 1 ? new OrFilter<T>(filters) : filters.get(0);
     }
 }

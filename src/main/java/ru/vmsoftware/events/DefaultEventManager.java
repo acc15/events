@@ -153,8 +153,6 @@ class DefaultEventManager extends AbstractRegistrar implements EventManager {
     Filter<?> createFilterByObject(Object obj) {
         if (obj instanceof Filter) {
             return (Filter) obj;
-        } else if (obj instanceof Class<?>) {
-            return Filters.instanceOf((Class<?>) obj);
         } else {
             return Filters.sameInstance(obj);
         }
