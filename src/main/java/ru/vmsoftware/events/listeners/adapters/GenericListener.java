@@ -5,8 +5,10 @@ import ru.vmsoftware.events.references.ManagedObject;
 import ru.vmsoftware.events.references.ManagementType;
 
 /**
- * Listener which is very convenient to use as anonymous class.
- * This implementation allows to override management type to make reference to this listener weak.
+ * Listener which defines a set of methods to override
+ * which is very convenient when declaring listener as anonymous class.
+ * And since this class implements {@link ManagedObject} it allows to override management type
+ * and make reference to this listener weak.
  * @author Vyacheslav Mayorov
  * @since 2013-19-09
  */
