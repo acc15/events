@@ -143,12 +143,6 @@ public class DefaultEventManagerTest implements Serializable {
         assertThat(manager.isClean()).isTrue();
     }
 
-    @ManagedBy(ManagementType.MANUAL)
-    private static class ManualManagedListener implements NoArgListener {
-        public void onEvent() {
-        }
-    }
-
     @Test
     public void testManagerShouldntCleanupMethodAdapterIfObjectManagedManual() throws Exception {
 
