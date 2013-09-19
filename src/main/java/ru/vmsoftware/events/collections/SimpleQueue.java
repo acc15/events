@@ -1,11 +1,11 @@
 package ru.vmsoftware.events.collections;
 
 /**
- * Simple double linked list interface
+ * Simple double linked queue interface
  * which doesn't expose access to underlying list entries.
- * It doesn't have {@code size()} and doesn't extend
- * {@link java.util.List} and {@link java.util.Collection}
- * interface due to performance reasons
+ * It doesn't have {@code size()} and doesn't extend neither
+ * {@link java.util.List} nor {@link java.util.Collection}
+ * interfaces due to performance reasons
  *
  * @author Vyacheslav Mayorov
  * @since 2013-01-05
@@ -20,7 +20,7 @@ public interface SimpleQueue<T> extends Iterable<T> {
     boolean isEmpty();
 
     /**
-     * Clears list
+     * Clears queue
      */
     void clear();
 
