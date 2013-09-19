@@ -36,14 +36,14 @@ public interface EventManager extends Registrar {
      * @param emitter real event emitter
      * @param type    event type
      * @param data    event data
-     * @return <p>result of calling {@link EventListener listeners} -
+     * @return <p>result of calling {@link ru.vmsoftware.events.listeners.EventListener listeners} -
      *         if at least one returns <code>false</code>,
      *         then this method will also returns <code>false</code>
      *         and no more listeners will receive emitted event.</p>
      *         <p>Applications may use this result as they want.<br/>
      *         <i>For example: </i>listener may return <code>false</code>
      *         if emitted event {@code data} isn't valid</p>
-     * @see EventListener#onEvent(Object, Object, Object)
+     * @see ru.vmsoftware.events.listeners.EventListener#onEvent(Object, Object, Object)
      */
     boolean emit(Object emitter, Object type, Object data);
 

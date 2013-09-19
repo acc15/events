@@ -1,7 +1,7 @@
-package ru.vmsoftware.events.adapters;
+package ru.vmsoftware.events.listeners.adapters;
 
 import org.apache.commons.lang.ObjectUtils;
-import ru.vmsoftware.events.EventListener;
+import ru.vmsoftware.events.listeners.EventListener;
 import ru.vmsoftware.events.providers.Provider;
 import ru.vmsoftware.events.providers.StrongProvider;
 import ru.vmsoftware.events.references.ContainerManaged;
@@ -14,7 +14,7 @@ import java.lang.reflect.Method;
  * @author Vyacheslav Mayorov
  * @since 2013-27-04
  */
-public class MethodAdapter implements EventListener, ContainerManaged {
+public class MethodAdapter implements EventListener<Object,Object,Object>, ContainerManaged {
 
     public MethodAdapter(Object obj, String methodName) {
         this(obj, findListenerMethod(obj, methodName));

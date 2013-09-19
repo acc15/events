@@ -4,6 +4,7 @@ import ru.vmsoftware.events.collections.CustomWeakLinkedQueue;
 import ru.vmsoftware.events.filters.Filter;
 import ru.vmsoftware.events.filters.Filters;
 import ru.vmsoftware.events.collections.WeakLinkedList;
+import ru.vmsoftware.events.listeners.*;
 import ru.vmsoftware.events.providers.Provider;
 import ru.vmsoftware.events.references.ContainerManaged;
 import ru.vmsoftware.events.references.ManagementType;
@@ -17,12 +18,12 @@ import static ru.vmsoftware.events.providers.Providers.strongRef;
  * @author Vyacheslav Mayorov
  * @since 2013-28-04
  */
-class DefaultEventManager implements EventManager {
+class DefaultEventManager extends AbstractRegistrar implements EventManager {
 
     public Registrar registrar() {
-        return new Registrar() {
+        return new AbstractRegistrar() {
 
-            public void listen(Object emitter, Object type, EventListener listener) {
+            public void listen(Object emitter, Object type, EventListener<?,?,?> listener) {
                 entries.add(createEntry(createFilterByObject(emitter), createFilterByObject(type), listener));
             }
 
@@ -65,7 +66,7 @@ class DefaultEventManager implements EventManager {
         };
     }
 
-    public void listen(Object emitter, Object type, EventListener listener) {
+    public void listen(Object emitter, Object type, EventListener<?,?,?> listener) {
         createEntry(emitter, type, listener);
     }
 

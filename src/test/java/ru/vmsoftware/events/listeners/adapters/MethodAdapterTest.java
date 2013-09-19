@@ -1,4 +1,4 @@
-package ru.vmsoftware.events.adapters;
+package ru.vmsoftware.events.listeners.adapters;
 
 import org.junit.Before;
 import org.junit.Test;

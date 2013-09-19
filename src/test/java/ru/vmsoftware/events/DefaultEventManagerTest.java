@@ -7,11 +7,12 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import ru.vmsoftware.events.adapters.ListenerAdapter;
-import ru.vmsoftware.events.adapters.MethodAdapter;
 import ru.vmsoftware.events.annotations.ManagedBy;
 import ru.vmsoftware.events.filters.Filter;
 import ru.vmsoftware.events.filters.Filters;
+import ru.vmsoftware.events.listeners.EventListener;
+import ru.vmsoftware.events.listeners.NoArgListener;
+import ru.vmsoftware.events.listeners.adapters.MethodAdapter;
 import ru.vmsoftware.events.references.ManagementType;
 
 import java.io.Serializable;
@@ -57,7 +58,7 @@ public class DefaultEventManagerTest implements Serializable {
 
     @Test(expected = NullPointerException.class)
     public void testListenDoesntAcceptNullPointersForListener2() throws Exception {
-        manager.listen(this, Filters.any(), null);
+        manager.listen(this, Filters.any(), (EventListener)null);
     }
 
     @Test(expected = NullPointerException.class)
@@ -123,9 +124,8 @@ public class DefaultEventManagerTest implements Serializable {
     }
 
     @ManagedBy(ManagementType.CONTAINER)
-    private static class ManagedContainerListener extends ListenerAdapter {
-        public boolean onEvent(Object emitter, Object type, Object event) {
-            return true;
+    private static class ManagedContainerListener implements NoArgListener {
+        public void onEvent() {
         }
     }
 
@@ -143,9 +143,8 @@ public class DefaultEventManagerTest implements Serializable {
     }
 
     @ManagedBy(ManagementType.MANUAL)
-    private static class ManualManagedListener extends ListenerAdapter {
-        public boolean onEvent(Object emitter, Object type, Object event) {
-            return true;
+    private static class ManualManagedListener implements NoArgListener {
+        public void onEvent() {
         }
     }
 
@@ -181,9 +180,8 @@ public class DefaultEventManagerTest implements Serializable {
 
     @Test
     public void testManagerHoldsListenerByStrongRef() throws Exception {
-        EventListener<Object, Object, Object> l = new ListenerAdapter<Object, Object, Object>() {
-            public boolean onEvent(Object emitter, Object type, Object event) {
-                return true;
+        NoArgListener l = new NoArgListener() {
+            public void onEvent() {
             }
         };
         manager.listen(this, Filters.any(), l);

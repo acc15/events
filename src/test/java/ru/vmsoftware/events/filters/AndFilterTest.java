@@ -10,6 +10,7 @@ import static org.fest.assertions.api.Assertions.assertThat;
  */
 public class AndFilterTest {
     @Test
+    @SuppressWarnings("unchecked")
     public void testFilter() throws Exception {
         final String val = "abc";
         final Filter<Object> f = Filters.and(
