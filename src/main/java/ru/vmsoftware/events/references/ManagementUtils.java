@@ -9,6 +9,12 @@ import ru.vmsoftware.events.annotations.ManagedBy;
 public class ManagementUtils {
     public static ManagementType getManagementType(Object obj, ManagementType defaultType) {
         final ManagedBy managedBy = obj.getClass().getAnnotation(ManagedBy.class);
-        return managedBy != null ? managedBy.value() : defaultType;
+        if (managedBy != null) {
+            return managedBy.value();
+        }
+        if (obj instanceof ManagedObject) {
+            return ((ManagedObject) obj).getManagementType();
+        }
+        return defaultType;
     }
 }

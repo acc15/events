@@ -1,6 +1,7 @@
 package ru.vmsoftware.events;
 
-import ru.vmsoftware.events.adapters.MethodAdapter;
+import ru.vmsoftware.events.listeners.*;
+import ru.vmsoftware.events.listeners.adapters.MethodAdapter;
 import ru.vmsoftware.events.annotations.Listener;
 import ru.vmsoftware.events.annotations.Listeners;
 import ru.vmsoftware.events.filters.Filter;
@@ -105,7 +106,6 @@ public class Events {
 
     /**
      * Shorthand for {@code Events.getManager().emit(emitter, event))}
-     *
      * @see EventManager#emit(Object, Object)
      */
     public static boolean emit(Object emitter, Object type) {
@@ -114,7 +114,6 @@ public class Events {
 
     /**
      * Shorthand for {@code Events.getManager().emit(emitter, type, data))}
-     *
      * @see EventManager#emit(Object, Object, Object)
      */
     public static boolean emit(Object emitter, Object type, Object data) {
@@ -123,10 +122,41 @@ public class Events {
 
     /**
      * Shorthand for {@code Events.getManager().listen(emitter, type, listener)}
-     *
-     * @see EventManager#listen(Object, Object, EventListener)
+     * @see EventManager#listen(Object, Object, ru.vmsoftware.events.listeners.EventListener)
      */
-    public static void listen(Object emitter, Object type, EventListener listener) {
+    public static <E,T,D> void listen(Object emitter, Object type, EventListener<E,T,D> listener) {
+        getManager().listen(emitter, type, listener);
+    }
+
+    /**
+     * Shorthand for {@code Events.getManager().listen(emitter, type, listener)}
+     * @see EventManager#listen(Object, Object, ru.vmsoftware.events.listeners.SimpleListener)
+     */
+    public static <E,T,D> void listen(Object emitter, Object type, SimpleListener<E,T,D> listener) {
+        getManager().listen(emitter, type, listener);
+    }
+
+    /**
+     * Shorthand for {@code Events.getManager().listen(emitter, type, listener)}
+     * @see EventManager#listen(Object, Object, ru.vmsoftware.events.listeners.TypeListener)
+     */
+    public static <T,D> void listen(Object emitter, Object type, TypeListener<T,D> listener) {
+        getManager().listen(emitter, type, listener);
+    }
+
+    /**
+     * Shorthand for {@code Events.getManager().listen(emitter, type, listener)}
+     * @see EventManager#listen(Object, Object, ru.vmsoftware.events.listeners.DataListener)
+     */
+    public static <D> void listen(Object emitter, Object type, DataListener<D> listener) {
+        getManager().listen(emitter, type, listener);
+    }
+
+    /**
+     * Shorthand for {@code Events.getManager().listen(emitter, type, listener)}
+     * @see EventManager#listen(Object, Object, ru.vmsoftware.events.listeners.NoArgListener)
+     */
+    public static void listen(Object emitter, Object type, NoArgListener listener) {
         getManager().listen(emitter, type, listener);
     }
 
@@ -180,7 +210,7 @@ public class Events {
         final MethodAdapter methodAdapter = new MethodAdapter(obj, method);
         registrar.listen(emitter != null
                 ? Filters.equalTo(emitter)
-                : getFilterByClassAndPattern(listener.emitterClass(), listener.emitter()), typeFilter, methodAdapter);
+                : getFilterByClassAndPattern(listener.emitterClass(), listener.emitter()), typeFilter, (EventListener<?,?,?>)methodAdapter);
     }
 
     static EventManager manager = new DefaultEventManager();
