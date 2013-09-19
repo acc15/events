@@ -12,7 +12,7 @@ public class CircularLinkedListTest extends AbstractLinkedListTest<CircularLinke
         return testEntries;
     }
 
-    protected CircularLinkedQueue<IntEntry> getList() {
+    protected CircularOpenLinkedQueue<IntEntry> getList() {
         return list;
     }
 
@@ -29,6 +29,6 @@ public class CircularLinkedListTest extends AbstractLinkedListTest<CircularLinke
         private int value;
     }
 
-    private CircularLinkedQueue<IntEntry> list = new CircularLinkedQueue<IntEntry>();
+    private CircularOpenLinkedQueue<IntEntry> list = new CircularOpenLinkedQueue<IntEntry>();
 
 }

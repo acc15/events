@@ -14,7 +14,7 @@ import static org.fest.assertions.api.Assertions.assertThat;
  * @author Vyacheslav Mayorov
  * @since 2013-01-05
  */
-public class WeakLinkedListTest {
+public class WeakLinkedQueueTest {
 
     @Test
     public void testListRemoveEntriesAutomaticallyWhenTheyGarbageCollected() throws Exception {
@@ -114,5 +114,5 @@ public class WeakLinkedListTest {
         TestUtils.assertIterator(list.iterator(), 10, 20);
     }
 
-    private WeakLinkedList<Integer> list = new WeakLinkedList<Integer>();
+    private WeakLinkedQueue<Integer> list = new WeakLinkedQueue<Integer>();
 }

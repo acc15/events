@@ -6,7 +6,7 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import ru.vmsoftware.events.providers.Provider;
-import ru.vmsoftware.events.providers.StrongProvider;
+import ru.vmsoftware.events.providers.Providers;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -18,10 +18,10 @@ import static org.mockito.Mockito.*;
 public class AbstractReferenceContainerTest {
 
     @Mock
-    private AbstractReferenceManager container;
+    private AbstractReferenceContainer container;
 
     @Mock
-    private ReferenceInitializer referenceInitializer;
+    private ContainerManaged containerManaged;
 
     @Before
     public void setUp() throws Exception {
@@ -42,17 +42,15 @@ public class AbstractReferenceContainerTest {
 
     @Test
     public void testManageReturnsGivenProviderIfObjectIsManualManagedByAnnotation() throws Exception {
-        final Provider<Object> mmProvider = new StrongProvider<Object>(new ManagementUtilsTest.MMObject());
+        final Provider<Object> mmProvider = Providers.<Object>strongRef(new ManagementUtilsTest.MMObject());
         assertThat(container.manage(mmProvider)).isSameAs(mmProvider);
     }
 
     @Test
     public void testManageCallsManageObjectIfObjectIsContainerManagedByAnnotation() throws Exception {
         final ManagementUtilsTest.CMObject cmObject = new ManagementUtilsTest.CMObject();
-        final Provider<ManagementUtilsTest.CMObject> expectedProvider =
-                new StrongProvider<ManagementUtilsTest.CMObject>(cmObject);
-        final Provider<ManagementUtilsTest.CMObject> givenProvider =
-                new StrongProvider<ManagementUtilsTest.CMObject>(cmObject);
+        final Provider<ManagementUtilsTest.CMObject> expectedProvider = Providers.strongRef(cmObject);
+        final Provider<ManagementUtilsTest.CMObject> givenProvider = Providers.strongRef(cmObject);
 
         when(container.manageObject(cmObject)).thenReturn(expectedProvider);
 
@@ -64,10 +62,8 @@ public class AbstractReferenceContainerTest {
     public void testManageUsesContainerManagementTypeByDefault() throws Exception {
 
         final ManagementUtilsTest.DMObject dmObject = new ManagementUtilsTest.DMObject();
-        final Provider<ManagementUtilsTest.DMObject> expectedProvider =
-                new StrongProvider<ManagementUtilsTest.DMObject>(dmObject);
-        final Provider<ManagementUtilsTest.DMObject> givenProvider =
-                new StrongProvider<ManagementUtilsTest.DMObject>(dmObject);
+        final Provider<ManagementUtilsTest.DMObject> expectedProvider = Providers.strongRef(dmObject);
+        final Provider<ManagementUtilsTest.DMObject> givenProvider = Providers.strongRef(dmObject);
 
         when(container.manageObject(dmObject)).thenReturn(expectedProvider);
         assertThat(container.manage(givenProvider)).isSameAs(expectedProvider);
@@ -78,21 +74,20 @@ public class AbstractReferenceContainerTest {
     @Test
     public void testManageUsesGivenDefaultManagementType() throws Exception {
         final ManagementUtilsTest.DMObject dmObject = new ManagementUtilsTest.DMObject();
-        final Provider<ManagementUtilsTest.DMObject> expectedProvider =
-                new StrongProvider<ManagementUtilsTest.DMObject>(dmObject);
+        final Provider<ManagementUtilsTest.DMObject> expectedProvider = Providers.strongRef(dmObject);
         assertThat(container.manage(expectedProvider, ManagementType.MANUAL)).isSameAs(expectedProvider);
     }
 
     @Test
     public void testManagerShouldntCallContainerManagedWhenManagementTypeIsContainer() throws Exception {
-        container.manage(new StrongProvider<Object>(referenceInitializer), ManagementType.CONTAINER);
-        verifyZeroInteractions(referenceInitializer);
+        container.manage(Providers.strongRef(containerManaged), ManagementType.CONTAINER);
+        verifyZeroInteractions(containerManaged);
     }
 
     @Test
     public void testManageShouldCallManageObjectWhenManagementTypeIsManualAndObjectIsContainerManaged()
             throws Exception {
-        container.manage(new StrongProvider<Object>(referenceInitializer), ManagementType.MANUAL);
-        verify(referenceInitializer).initReferences(container);
+        container.manage(Providers.strongRef(containerManaged), ManagementType.MANUAL);
+        verify(containerManaged).initReferences(container);
     }
 }

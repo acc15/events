@@ -1,13 +1,11 @@
 package ru.vmsoftware.events;
 
-import ru.vmsoftware.events.listeners.*;
-
 /**
  * <p>Registrar is very suitable in the cases when listeners should be removed manually from {@link EventManager}
  * before real listener object will be garbage collected (in this case listeners will be removed automatically)</p>
- * <p>Registrar provides methods for {@link #listen(Object, Object, ru.vmsoftware.events.listeners.EventListener) registering},
- * {@link #mute(Object) unregistering} or {@link #cleanup() removal of all} listeners registered by this
- * (and only by this registrar)registrar </p>
+ * <p>Registrar provides methods for {@link #listen(Object, Object, EventListener) registering},
+ * {@link #mute(Object) unregistering} and {@link #cleanup() removal of all} listeners registered by this
+ * (and only by this) registrar </p>
  *
  * @author Vyacheslav Mayorov
  * @since 2013-30-04
@@ -17,48 +15,11 @@ public interface Registrar {
     /**
      * Registers listener
      *
-     * @param emitter  emitter instance or emitter {@link ru.vmsoftware.events.filters.Filter filter}
-     * @param type     type instance or type {@link ru.vmsoftware.events.filters.Filter filter}
+     * @param emitter  emitter
+     * @param type     type
      * @param listener listener
      */
-    void listen(Object emitter, Object type, EventListener<?,?,?> listener);
-
-    /**
-     * Registers simple listener
-     *
-     * @param emitter  emitter instance or emitter {@link ru.vmsoftware.events.filters.Filter filter}
-     * @param type     type instance or type {@link ru.vmsoftware.events.filters.Filter filter}
-     * @param listener listener
-     */
-    void listen(Object emitter, Object type, SimpleListener<?,?,?> listener);
-
-    /**
-     * Registers type listener
-     *
-     * @param emitter  emitter instance or emitter {@link ru.vmsoftware.events.filters.Filter filter}
-     * @param type     type instance or type {@link ru.vmsoftware.events.filters.Filter filter}
-     * @param listener listener
-     */
-    void listen(Object emitter, Object type, TypeListener<?,?> listener);
-
-    /**
-     * Registers data listener
-     *
-     * @param emitter  emitter instance or emitter {@link ru.vmsoftware.events.filters.Filter filter}
-     * @param type     type instance or type {@link ru.vmsoftware.events.filters.Filter filter}
-     * @param listener listener
-     */
-    void listen(Object emitter, Object type, DataListener<?> listener);
-
-    /**
-     * Registers no-arg listener
-     *
-     * @param emitter  emitter instance or emitter {@link ru.vmsoftware.events.filters.Filter filter}
-     * @param type     type instance or type {@link ru.vmsoftware.events.filters.Filter filter}
-     * @param listener listener
-     */
-    void listen(Object emitter, Object type, NoArgListener listener);
-
+    void listen(Object emitter, Object type, EventListener<?, ?, ?> listener);
 
     /**
      * Removes specified listener registered by {@code this} registrar

@@ -1,11 +1,11 @@
-package ru.vmsoftware.events.listeners.adapters;
+package ru.vmsoftware.events.adapters;
 
 import org.apache.commons.lang.ObjectUtils;
-import ru.vmsoftware.events.listeners.EventListener;
+import ru.vmsoftware.events.EventListener;
 import ru.vmsoftware.events.providers.Provider;
-import ru.vmsoftware.events.providers.StrongProvider;
-import ru.vmsoftware.events.references.ReferenceInitializer;
-import ru.vmsoftware.events.references.ReferenceManager;
+import ru.vmsoftware.events.providers.Providers;
+import ru.vmsoftware.events.references.ContainerManaged;
+import ru.vmsoftware.events.references.ReferenceContainer;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -14,18 +14,18 @@ import java.lang.reflect.Method;
  * @author Vyacheslav Mayorov
  * @since 2013-27-04
  */
-public class MethodAdapter implements EventListener<Object,Object,Object>, ReferenceInitializer {
+public class MethodAdapter implements EventListener, ContainerManaged {
 
     public MethodAdapter(Object obj, String methodName) {
         this(obj, findListenerMethod(obj, methodName));
     }
 
     public MethodAdapter(Object obj, Method method) {
-        this.provider = new StrongProvider<Object>(obj);
+        this.provider = Providers.strongRef(obj);
         this.method = method;
     }
 
-    public boolean handleEvent(Object emitter, Object type, Object data) {
+    public boolean onEvent(Object emitter, Object type, Object data) {
         final Object object = provider.get();
         if (object == null) {
             return true;
@@ -79,8 +79,8 @@ public class MethodAdapter implements EventListener<Object,Object,Object>, Refer
         return ObjectUtils.equals(provider.get(), obj);
     }
 
-    public void initReferences(ReferenceManager referenceManager) {
-        provider = referenceManager.manage(provider);
+    public void initReferences(ReferenceContainer referenceContainer) {
+        provider = referenceContainer.manage(provider);
     }
 
     private static Method findListenerMethod(Object obj, String methodName) {

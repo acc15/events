@@ -10,7 +10,7 @@ package ru.vmsoftware.events.collections;
  * @author Vyacheslav Mayorov
  * @since 2013-01-05
  */
-public interface DoubleLinkedList<T> extends Iterable<T> {
+public interface SimpleQueue<T> extends Iterable<T> {
 
     /**
      * Checks whether this list is empty or not
@@ -25,7 +25,7 @@ public interface DoubleLinkedList<T> extends Iterable<T> {
     void clear();
 
     /**
-     * Inserts {@code value} at first position
+     * Inserts {@code value} at last position
      *
      * @param value value to insert
      */

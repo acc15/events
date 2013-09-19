@@ -1,8 +1,8 @@
 package ru.vmsoftware.events.collections;
 
 import ru.vmsoftware.events.providers.Provider;
-import ru.vmsoftware.events.providers.ReferenceProvider;
-import ru.vmsoftware.events.references.AbstractReferenceManager;
+import ru.vmsoftware.events.providers.Providers;
+import ru.vmsoftware.events.references.AbstractReferenceContainer;
 
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
@@ -14,22 +14,23 @@ import java.util.List;
  * @author Vyacheslav Mayorov
  * @since 2013-04-05
  */
-public class CustomWeakLinkedQueue<E extends CustomWeakLinkedQueue.WeakEntry<E>> extends CircularLinkedQueue<E> {
+public class CustomWeakOpenLinkedQueue<E extends CustomWeakOpenLinkedQueue.WeakEntry<E>>
+        extends CircularOpenLinkedQueue<E> {
 
-    public class WeakEntryManager extends AbstractReferenceManager {
-        public WeakEntryManager(E entry) {
+    public class WeakEntryContainer extends AbstractReferenceContainer {
+        public WeakEntryContainer(E entry) {
             this.entry = entry;
         }
 
         protected <T> Provider<T> manageObject(T obj) {
-            return new ReferenceProvider<T>(entry.addRef(obj, staleRefs));
+            return Providers.ref(entry.addRef(obj, staleRefs));
         }
 
         private E entry;
     }
 
-    public WeakEntryManager createEntryContainer(E entry) {
-        return new WeakEntryManager(entry);
+    public WeakEntryContainer createEntryContainer(E entry) {
+        return new WeakEntryContainer(entry);
     }
 
     public Iterator<E> iterator() {
@@ -64,8 +65,8 @@ public class CustomWeakLinkedQueue<E extends CustomWeakLinkedQueue.WeakEntry<E>>
         }
 
         @SuppressWarnings("unchecked")
-        public <T> WeakReference<T> getRef(int idx) {
-            return (WeakReference<T>) references.get(idx);
+        public <T> WeakReference<T> getRef() {
+            return (WeakReference<T>) references.get(0);
         }
 
         List<Ref<?, E>> references = new ArrayList<Ref<?, E>>();
@@ -100,8 +101,7 @@ public class CustomWeakLinkedQueue<E extends CustomWeakLinkedQueue.WeakEntry<E>>
             }
 
             E next = entry;
-            e:
-            while ((next = super.lookupNext(next)) != null) {
+            e: while ((next = super.lookupNext(next)) != null) {
                 for (Ref<?, E> ref : next.references) {
                     final Object o = ref.get();
                     if (o == null) {
