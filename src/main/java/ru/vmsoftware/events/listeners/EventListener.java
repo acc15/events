@@ -15,7 +15,7 @@ public interface EventListener<E, T, D> {
      * @return <code>true</code> if event handling should be continued,
      *         <code>false</code> if event handling should be stopped (i.e. next listener will not receive this event)
      */
-    boolean onEvent(E emitter, T type, D data);
+    boolean handleEvent(E emitter, T type, D data);
 
     /**
      * <p>Checks whether specified {@code obj} is counterpart of this listener.</p>

@@ -43,7 +43,7 @@ public interface EventManager extends Registrar {
      *         <p>Applications may use this result as they want.<br/>
      *         <i>For example: </i>listener may return <code>false</code>
      *         if emitted event {@code data} isn't valid</p>
-     * @see ru.vmsoftware.events.listeners.EventListener#onEvent(Object, Object, Object)
+     * @see ru.vmsoftware.events.listeners.EventListener#handleEvent(Object, Object, Object)
      */
     boolean emit(Object emitter, Object type, Object data);
 

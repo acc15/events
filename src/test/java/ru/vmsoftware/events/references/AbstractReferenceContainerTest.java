@@ -18,10 +18,10 @@ import static org.mockito.Mockito.*;
 public class AbstractReferenceContainerTest {
 
     @Mock
-    private AbstractReferenceContainer container;
+    private AbstractReferenceManager container;
 
     @Mock
-    private ContainerManaged containerManaged;
+    private ReferenceInitializer referenceInitializer;
 
     @Before
     public void setUp() throws Exception {
@@ -85,14 +85,14 @@ public class AbstractReferenceContainerTest {
 
     @Test
     public void testManagerShouldntCallContainerManagedWhenManagementTypeIsContainer() throws Exception {
-        container.manage(new StrongProvider<Object>(containerManaged), ManagementType.CONTAINER);
-        verifyZeroInteractions(containerManaged);
+        container.manage(new StrongProvider<Object>(referenceInitializer), ManagementType.CONTAINER);
+        verifyZeroInteractions(referenceInitializer);
     }
 
     @Test
     public void testManageShouldCallManageObjectWhenManagementTypeIsManualAndObjectIsContainerManaged()
             throws Exception {
-        container.manage(new StrongProvider<Object>(containerManaged), ManagementType.MANUAL);
-        verify(containerManaged).initReferences(container);
+        container.manage(new StrongProvider<Object>(referenceInitializer), ManagementType.MANUAL);
+        verify(referenceInitializer).initReferences(container);
     }
 }

@@ -2,14 +2,14 @@ package ru.vmsoftware.events.filters;
 
 import ru.vmsoftware.events.providers.Provider;
 import ru.vmsoftware.events.providers.StrongProvider;
-import ru.vmsoftware.events.references.ContainerManaged;
-import ru.vmsoftware.events.references.ReferenceContainer;
+import ru.vmsoftware.events.references.ReferenceInitializer;
+import ru.vmsoftware.events.references.ReferenceManager;
 
 /**
  * @author Vyacheslav Mayorov
  * @since 2013-03-05
  */
-class SameInstanceFilter<T> implements Filter<T>, ContainerManaged {
+class SameInstanceFilter<T> implements Filter<T>, ReferenceInitializer {
     SameInstanceFilter(T instance) {
         this.instance = new StrongProvider<T>(instance);
     }
@@ -18,8 +18,8 @@ class SameInstanceFilter<T> implements Filter<T>, ContainerManaged {
         return instance.get() == value;
     }
 
-    public void initReferences(ReferenceContainer referenceContainer) {
-        instance = referenceContainer.manage(instance);
+    public void initReferences(ReferenceManager referenceManager) {
+        instance = referenceManager.manage(instance);
     }
 
     private Provider<T> instance;

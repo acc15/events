@@ -6,9 +6,9 @@ import ru.vmsoftware.events.filters.Filters;
 import ru.vmsoftware.events.collections.WeakLinkedList;
 import ru.vmsoftware.events.listeners.*;
 import ru.vmsoftware.events.providers.Provider;
-import ru.vmsoftware.events.references.ContainerManaged;
+import ru.vmsoftware.events.references.ReferenceInitializer;
 import ru.vmsoftware.events.references.ManagementType;
-import ru.vmsoftware.events.references.ReferenceContainer;
+import ru.vmsoftware.events.references.ReferenceManager;
 
 import java.util.Iterator;
 
@@ -92,7 +92,7 @@ class DefaultEventManager extends AbstractRegistrar implements EventManager {
             }
 
             final EventListener listener = e.listenerProvider.get();
-            if (!listener.onEvent(emitter, type, data)) {
+            if (!listener.handleEvent(emitter, type, data)) {
                 return false;
             }
         }
@@ -132,17 +132,17 @@ class DefaultEventManager extends AbstractRegistrar implements EventManager {
         return entry;
     }
 
-    static class ListenerEntry extends CustomWeakLinkedQueue.WeakEntry<ListenerEntry> implements ContainerManaged {
+    static class ListenerEntry extends CustomWeakLinkedQueue.WeakEntry<ListenerEntry> implements ReferenceInitializer {
         ListenerEntry(Filter emitterFilter, Filter typeFilter, EventListener listener) {
             this.emitterFilterProvider = strongRef(emitterFilter);
             this.typeFilterProvider = strongRef(typeFilter);
             this.listenerProvider = strongRef(listener);
         }
 
-        public void initReferences(ReferenceContainer referenceContainer) {
-            emitterFilterProvider = referenceContainer.manage(emitterFilterProvider, ManagementType.MANUAL);
-            typeFilterProvider = referenceContainer.manage(typeFilterProvider, ManagementType.MANUAL);
-            listenerProvider = referenceContainer.manage(listenerProvider, ManagementType.MANUAL);
+        public void initReferences(ReferenceManager referenceManager) {
+            emitterFilterProvider = referenceManager.manage(emitterFilterProvider, ManagementType.MANUAL);
+            typeFilterProvider = referenceManager.manage(typeFilterProvider, ManagementType.MANUAL);
+            listenerProvider = referenceManager.manage(listenerProvider, ManagementType.MANUAL);
         }
 
         Provider<Filter> emitterFilterProvider;

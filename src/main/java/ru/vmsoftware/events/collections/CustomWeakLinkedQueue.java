@@ -2,7 +2,7 @@ package ru.vmsoftware.events.collections;
 
 import ru.vmsoftware.events.providers.Provider;
 import ru.vmsoftware.events.providers.ReferenceProvider;
-import ru.vmsoftware.events.references.AbstractReferenceContainer;
+import ru.vmsoftware.events.references.AbstractReferenceManager;
 
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
@@ -16,8 +16,8 @@ import java.util.List;
  */
 public class CustomWeakLinkedQueue<E extends CustomWeakLinkedQueue.WeakEntry<E>> extends CircularLinkedQueue<E> {
 
-    public class WeakEntryContainer extends AbstractReferenceContainer {
-        public WeakEntryContainer(E entry) {
+    public class WeakEntryManager extends AbstractReferenceManager {
+        public WeakEntryManager(E entry) {
             this.entry = entry;
         }
 
@@ -28,8 +28,8 @@ public class CustomWeakLinkedQueue<E extends CustomWeakLinkedQueue.WeakEntry<E>>
         private E entry;
     }
 
-    public WeakEntryContainer createEntryContainer(E entry) {
-        return new WeakEntryContainer(entry);
+    public WeakEntryManager createEntryContainer(E entry) {
+        return new WeakEntryManager(entry);
     }
 
     public Iterator<E> iterator() {

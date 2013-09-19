@@ -4,8 +4,8 @@ import org.apache.commons.lang.ObjectUtils;
 import ru.vmsoftware.events.listeners.EventListener;
 import ru.vmsoftware.events.providers.Provider;
 import ru.vmsoftware.events.providers.StrongProvider;
-import ru.vmsoftware.events.references.ContainerManaged;
-import ru.vmsoftware.events.references.ReferenceContainer;
+import ru.vmsoftware.events.references.ReferenceInitializer;
+import ru.vmsoftware.events.references.ReferenceManager;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -14,7 +14,7 @@ import java.lang.reflect.Method;
  * @author Vyacheslav Mayorov
  * @since 2013-27-04
  */
-public class MethodAdapter implements EventListener<Object,Object,Object>, ContainerManaged {
+public class MethodAdapter implements EventListener<Object,Object,Object>, ReferenceInitializer {
 
     public MethodAdapter(Object obj, String methodName) {
         this(obj, findListenerMethod(obj, methodName));
@@ -25,7 +25,7 @@ public class MethodAdapter implements EventListener<Object,Object,Object>, Conta
         this.method = method;
     }
 
-    public boolean onEvent(Object emitter, Object type, Object data) {
+    public boolean handleEvent(Object emitter, Object type, Object data) {
         final Object object = provider.get();
         if (object == null) {
             return true;
@@ -79,8 +79,8 @@ public class MethodAdapter implements EventListener<Object,Object,Object>, Conta
         return ObjectUtils.equals(provider.get(), obj);
     }
 
-    public void initReferences(ReferenceContainer referenceContainer) {
-        provider = referenceContainer.manage(provider);
+    public void initReferences(ReferenceManager referenceManager) {
+        provider = referenceManager.manage(provider);
     }
 
     private static Method findListenerMethod(Object obj, String methodName) {

@@ -12,6 +12,7 @@ import ru.vmsoftware.events.filters.Filter;
 import ru.vmsoftware.events.filters.Filters;
 import ru.vmsoftware.events.listeners.EventListener;
 import ru.vmsoftware.events.listeners.NoArgListener;
+import ru.vmsoftware.events.listeners.adapters.AbstractListener;
 import ru.vmsoftware.events.listeners.adapters.MethodAdapter;
 import ru.vmsoftware.events.references.ManagementType;
 
@@ -42,8 +43,8 @@ public class DefaultEventManagerTest implements Serializable {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        Mockito.when(listener.onEvent(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(true);
-        Mockito.when(listener2.onEvent(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(true);
+        Mockito.when(listener.handleEvent(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(true);
+        Mockito.when(listener2.handleEvent(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(true);
     }
 
     @Test(expected = NullPointerException.class)
@@ -80,21 +81,21 @@ public class DefaultEventManagerTest implements Serializable {
     public void testEmittedEventDeliveredCorrectly() throws Exception {
         manager.listen(this, Filters.any(), listener);
         manager.emit(this, eventType, eventData);
-        verify(listener).onEvent(this, eventType, eventData);
+        verify(listener).handleEvent(this, eventType, eventData);
     }
 
     @Test
     public void testEmitShouldCallListenersRegisteredWithInterfaceOrParentClass() throws Exception {
         manager.listen(Serializable.class, Filters.any(), listener);
         manager.emit(this, eventType, eventData);
-        verify(listener).onEvent(this, eventType, eventData);
+        verify(listener).handleEvent(this, eventType, eventData);
     }
 
     @Test
     public void testEmittedEventsDeliveredIfListenerAddForEmitterClass() throws Exception {
         manager.listen(DefaultEventManagerTest.class, Filters.any(), listener);
         manager.emit(this, eventType, eventData);
-        verify(listener).onEvent(this, eventType, eventData);
+        verify(listener).handleEvent(this, eventType, eventData);
     }
 
     @Test
@@ -113,14 +114,14 @@ public class DefaultEventManagerTest implements Serializable {
 
     @Test
     public void testManagerBreaksExecutionIfSomeoneListenerReturnsFalse() throws Exception {
-        Mockito.when(listener.onEvent(this, eventType, eventData)).thenReturn(false);
+        Mockito.when(listener.handleEvent(this, eventType, eventData)).thenReturn(false);
 
         manager.listen(this, Filters.any(), listener);
         manager.listen(this, Filters.any(), listener2);
         manager.emit(this, eventType, eventData);
 
-        verify(listener).onEvent(this, eventType, eventData);
-        verify(listener2, never()).onEvent(Matchers.any(), Matchers.any(), Matchers.any());
+        verify(listener).handleEvent(this, eventType, eventData);
+        verify(listener2, never()).handleEvent(Matchers.any(), Matchers.any(), Matchers.any());
     }
 
     @ManagedBy(ManagementType.CONTAINER)
@@ -136,9 +137,7 @@ public class DefaultEventManagerTest implements Serializable {
         assertThat(manager.isClean()).isFalse();
         l = null;
 
-        TestUtils.forceGC();
-
-        manager.emit(TestUtils.NULL, eventType, null);
+        forceGCAndCleanup();
         assertThat(manager.isClean()).isTrue();
     }
 
@@ -149,6 +148,20 @@ public class DefaultEventManagerTest implements Serializable {
     }
 
     @Test
+    public void testManagerShouldCleanupAbstractListenerWithContainerManagementType() throws Exception {
+        AbstractListener<Object,Object,Object> l = new AbstractListener<Object, Object, Object>() {
+            @Override
+            public ManagementType getManagementType() {
+                return ManagementType.CONTAINER;
+            }
+        };
+        manager.listen(this, Filters.any(), l);
+        l = null;
+        forceGCAndCleanup();
+        assertThat(manager.isClean()).isTrue();
+    }
+
+    @Test
     public void testManagerShouldntCleanupMethodAdapterIfObjectManagedManual() throws Exception {
 
         ManualManagedListener l = new ManualManagedListener();
@@ -156,9 +169,7 @@ public class DefaultEventManagerTest implements Serializable {
         manager.listen(this, Filters.any(), methodAdapter);
         l = null;
 
-        TestUtils.forceGC();
-
-        manager.emit(TestUtils.NULL, eventType, null);
+        forceGCAndCleanup();
         assertThat(manager.isClean()).isFalse();
 
     }
@@ -171,11 +182,13 @@ public class DefaultEventManagerTest implements Serializable {
         assertThat(manager.isClean()).isFalse();
         e = null;
 
-        TestUtils.forceGC();
-
-        // to force cleanup of stales
-        manager.emit(TestUtils.NULL, eventType, null);
+        forceGCAndCleanup();
         assertThat(manager.isClean()).isTrue();
+    }
+
+    private void forceGCAndCleanup() throws InterruptedException {
+        TestUtils.forceGC();
+        manager.emit(TestUtils.NULL, eventType, null);
     }
 
     @Test
@@ -188,10 +201,7 @@ public class DefaultEventManagerTest implements Serializable {
         assertThat(manager.isClean()).isFalse();
 
         l = null;
-        TestUtils.forceGC();
-
-        // to force cleanup of stales
-        manager.emit(TestUtils.NULL, eventType, null);
+        forceGCAndCleanup();
         assertThat(manager.isClean()).isFalse();
     }
 
@@ -230,10 +240,10 @@ public class DefaultEventManagerTest implements Serializable {
 
         final Emitter emitter = manager.emitter(this);
         emitter.emit(eventType);
-        verify(listener).onEvent(this, eventType, null);
+        verify(listener).handleEvent(this, eventType, null);
 
         emitter.emit(eventType, eventData);
-        verify(listener).onEvent(this, eventType, eventData);
+        verify(listener).handleEvent(this, eventType, eventData);
     }
 
     @Test
@@ -305,9 +315,7 @@ public class DefaultEventManagerTest implements Serializable {
         manager.listen(this, Filters.any(), methodAdapter);
 
         l = null;
-        TestUtils.forceGC();
-
-        manager.emit(TestUtils.NULL, eventType, null);
+        forceGCAndCleanup();
         assertThat(manager.isClean()).isTrue();
     }
 
@@ -325,20 +333,20 @@ public class DefaultEventManagerTest implements Serializable {
 
     private void verifyOnlyFirstCalled() {
         manager.emit(this, eventType, eventData);
-        verify(listener).onEvent(this, eventType, eventData);
-        verify(listener2, never()).onEvent(Matchers.any(), Matchers.any(), Matchers.any());
+        verify(listener).handleEvent(this, eventType, eventData);
+        verify(listener2, never()).handleEvent(Matchers.any(), Matchers.any(), Matchers.any());
     }
 
     private void verifyBothCalled() {
         manager.emit(this, eventType, eventData);
-        verify(listener).onEvent(this, eventType, eventData);
-        verify(listener2).onEvent(this, eventType, eventData);
+        verify(listener).handleEvent(this, eventType, eventData);
+        verify(listener2).handleEvent(this, eventType, eventData);
     }
 
     private void verifyNoneCalled() {
         manager.emit(this, eventType, eventData);
-        verify(listener, never()).onEvent(Matchers.any(), Matchers.any(), Matchers.any());
-        verify(listener2, never()).onEvent(Matchers.any(), Matchers.any(), Matchers.any());
+        verify(listener, never()).handleEvent(Matchers.any(), Matchers.any(), Matchers.any());
+        verify(listener2, never()).handleEvent(Matchers.any(), Matchers.any(), Matchers.any());
     }
 
 
