@@ -4,7 +4,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.fest.assertions.api.Assertions;
 
 import java.lang.ref.WeakReference;
-import java.util.Iterator;
+import java.util.*;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -16,6 +16,34 @@ import static org.fest.assertions.api.Assertions.assertThat;
 public class TestUtils {
 
     public static final Object NULL = new Object();
+
+    public static class CallRecorder {
+
+        public void recordCall(Object... args) {
+            if (this.args != null) {
+                throw new IllegalStateException("only one call can be recorder by CallRecorder");
+            }
+            this.args = Arrays.asList(args);
+        }
+
+        public List<Object> getCallArgs() {
+            return args;
+        }
+
+        public boolean isCalled() {
+            return args != null;
+        }
+
+        private List<Object> args;
+    }
+
+    public static <T> List<T> tail(List<T> l, int count) {
+        if (l.size() > count) {
+            return l.subList(l.size()-count, l.size());
+        } else {
+            return l;
+        }
+    }
 
     public static void forceGC() throws InterruptedException {
         final WeakReference<Object> ref = new WeakReference<Object>(new Object());

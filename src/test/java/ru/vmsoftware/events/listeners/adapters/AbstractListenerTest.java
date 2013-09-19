@@ -1,9 +1,9 @@
 package ru.vmsoftware.events.listeners.adapters;
 
 import org.junit.Test;
+import ru.vmsoftware.events.TestData;
+import ru.vmsoftware.events.TestUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -15,56 +15,19 @@ import static org.fest.assertions.api.Assertions.assertThat;
 public class AbstractListenerTest {
 
     private static class TestListener extends AbstractListener<Object,Object,Object> {
-        public boolean isCalled() {
-            return called;
+
+        public TestUtils.CallRecorder getCallRecorder() {
+            return callRecorder;
         }
 
-        private Object getEmitter() {
-            return emitter;
-        }
-
-        private Object getType() {
-            return type;
-        }
-
-        private Object getData() {
-            return data;
-        }
-
-        public void setCallData(Object emitter, Object type, Object data) {
-            this.emitter = emitter;
-            this.type = type;
-            this.data = data;
-            this.called = true;
-        }
-
-        private Object emitter;
-        private Object type;
-        private Object data;
-        private boolean called = false;
-    }
-
-    private Object emitter = new Object();
-    private Object type = new Object();
-    private Object data = new Object();
-
-    private static <T> List<T> listUntilNulls(T... values) {
-        final List<T> l = new ArrayList<T>();
-        for (T v: values) {
-            if (v == null) {
-                break;
-            }
-            l.add(v);
-        }
-        return l;
+        private TestUtils.CallRecorder callRecorder = new TestUtils.CallRecorder();
     }
 
     public void testListener(TestListener l, int paramCount) {
-        assertThat(l.handleEvent(emitter, type, data));
-        assertThat(l.isCalled()).as("listener with " + paramCount + " parameters").isTrue();
-        final List<Object> expectedParams = Arrays.asList(data, type, emitter).subList(0, paramCount);
-        final List<Object> actualParams = listUntilNulls(l.getData(), l.getType(), l.getEmitter());
-        assertThat(actualParams).isEqualTo(expectedParams);
+        assertThat(TestData.handleEventWithTestData(l));
+        assertThat(l.getCallRecorder().isCalled()).as("listener with " + paramCount + " parameters").isTrue();
+        final List<Object> expectedParams = TestUtils.tail(TestData.PARAMETERS, paramCount);
+        assertThat(l.getCallRecorder().getCallArgs()).isEqualTo(expectedParams);
     }
 
     @Test
@@ -72,7 +35,7 @@ public class AbstractListenerTest {
         testListener(new TestListener() {
             @Override
             public void onEvent() {
-                setCallData(null, null, null);
+                getCallRecorder().recordCall();
             }
         }, 0);
     }
@@ -82,7 +45,7 @@ public class AbstractListenerTest {
         testListener(new TestListener() {
             @Override
             public void onEvent(Object data) {
-                setCallData(null, null, data);
+                getCallRecorder().recordCall(data);
             }
         }, 1);
     }
@@ -92,7 +55,7 @@ public class AbstractListenerTest {
         testListener(new TestListener() {
             @Override
             public void onEvent(Object type, Object data) {
-                setCallData(null, type, data);
+                getCallRecorder().recordCall(type, data);
             }
         }, 2);
     }
@@ -102,7 +65,7 @@ public class AbstractListenerTest {
         testListener(new TestListener() {
             @Override
             public void onEvent(Object emitter, Object type, Object data) {
-                setCallData(emitter, type, data);
+                getCallRecorder().recordCall(emitter, type, data);
             }
         }, 3);
     }
