@@ -10,7 +10,7 @@ import ru.vmsoftware.events.references.ManagementType;
  * @author Vyacheslav Mayorov
  * @since 2013-19-09
  */
-public abstract class AbstractListener<E,T,D> implements
+public class GenericListener<E,T,D> implements
         EventListener<E,T,D>,
         ManagedObject {
 

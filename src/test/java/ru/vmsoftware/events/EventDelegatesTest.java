@@ -5,8 +5,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import ru.vmsoftware.events.adapters.ListenerAdapter;
 import ru.vmsoftware.events.filters.Filter;
+import ru.vmsoftware.events.listeners.NoArgListener;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
@@ -30,9 +30,8 @@ public class EventDelegatesTest {
             return true;
         }
     };
-    private EventListener listener = new ListenerAdapter() {
-        public boolean onEvent(Object emitter, Object type, Object data) {
-            return true;
+    private NoArgListener listener = new NoArgListener() {
+        public void onEvent() {
         }
     };
 

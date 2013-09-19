@@ -12,9 +12,9 @@ import static org.fest.assertions.api.Assertions.assertThat;
  * @author Vyacheslav Mayorov
  * @since 2013-19-09
  */
-public class AbstractListenerTest {
+public class GenericListenerTest {
 
-    private static class TestListener extends AbstractListener<Object,Object,Object> {
+    private static class TestListener extends GenericListener<Object,Object,Object> {
 
         public TestUtils.CallRecorder getCallRecorder() {
             return callRecorder;

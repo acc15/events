@@ -19,15 +19,15 @@ public class CustomWeakLinkedListTest extends AbstractLinkedListTest<CustomWeakL
 
     private TestWeakEntry createEntry(Object... refs) {
         final TestWeakEntry entry = new TestWeakEntry();
-        final CustomWeakOpenLinkedQueue.WeakEntryContainer container = list.createEntryContainer(entry);
+        final CustomWeakOpenLinkedQueue.WeakEntryManager container = list.createEntryContainer(entry);
         for (Object ref : refs) {
             container.manage(Providers.strongRef(ref));
         }
         return entry;
     }
 
-    static <E extends CustomWeakOpenLinkedQueue.WeakEntry<E>> CustomWeakOpenLinkedQueue<E>.WeakEntryContainer ref(
-            CustomWeakOpenLinkedQueue<E>.WeakEntryContainer container,
+    static <E extends CustomWeakOpenLinkedQueue.WeakEntry<E>> CustomWeakOpenLinkedQueue.WeakEntryManager ref(
+            CustomWeakOpenLinkedQueue.WeakEntryManager container,
             Object ref) {
         container.manage(Providers.strongRef(ref));
         return container;

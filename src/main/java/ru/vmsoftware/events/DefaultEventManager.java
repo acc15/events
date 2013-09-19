@@ -1,13 +1,14 @@
 package ru.vmsoftware.events;
 
 import ru.vmsoftware.events.collections.CustomWeakOpenLinkedQueue;
+import ru.vmsoftware.events.collections.WeakLinkedQueue;
 import ru.vmsoftware.events.filters.Filter;
 import ru.vmsoftware.events.filters.Filters;
-import ru.vmsoftware.events.collections.WeakLinkedQueue;
+import ru.vmsoftware.events.listeners.EventListener;
 import ru.vmsoftware.events.providers.Provider;
-import ru.vmsoftware.events.references.ContainerManaged;
 import ru.vmsoftware.events.references.ManagementType;
-import ru.vmsoftware.events.references.ReferenceContainer;
+import ru.vmsoftware.events.references.ReferenceInitializer;
+import ru.vmsoftware.events.references.ReferenceManager;
 
 import java.util.Iterator;
 
@@ -17,12 +18,12 @@ import static ru.vmsoftware.events.providers.Providers.strongRef;
  * @author Vyacheslav Mayorov
  * @since 2013-28-04
  */
-class DefaultEventManager implements EventManager {
+class DefaultEventManager extends AbstractRegistrar implements EventManager {
 
     public Registrar registrar() {
-        return new Registrar() {
+        return new AbstractRegistrar() {
 
-            public void listen(Object emitter, Object type, EventListener listener) {
+            public void listen(Object emitter, Object type, EventListener<?,?,?> listener) {
                 entries.add(createEntry(createFilterByObject(emitter), createFilterByObject(type), listener));
             }
 
@@ -65,7 +66,7 @@ class DefaultEventManager implements EventManager {
         };
     }
 
-    public void listen(Object emitter, Object type, EventListener listener) {
+    public void listen(Object emitter, Object type, EventListener<?,?,?> listener) {
         createEntry(emitter, type, listener);
     }
 
@@ -91,7 +92,7 @@ class DefaultEventManager implements EventManager {
             }
 
             final EventListener listener = e.listenerProvider.get();
-            if (!listener.onEvent(emitter, type, data)) {
+            if (!listener.handleEvent(emitter, type, data)) {
                 return false;
             }
         }
@@ -131,17 +132,17 @@ class DefaultEventManager implements EventManager {
         return entry;
     }
 
-    static class ListenerEntry extends CustomWeakOpenLinkedQueue.WeakEntry<ListenerEntry> implements ContainerManaged {
+    static class ListenerEntry extends CustomWeakOpenLinkedQueue.WeakEntry<ListenerEntry> implements ReferenceInitializer {
         ListenerEntry(Filter emitterFilter, Filter typeFilter, EventListener listener) {
             this.emitterFilterProvider = strongRef(emitterFilter);
             this.typeFilterProvider = strongRef(typeFilter);
             this.listenerProvider = strongRef(listener);
         }
 
-        public void initReferences(ReferenceContainer referenceContainer) {
-            emitterFilterProvider = referenceContainer.manage(emitterFilterProvider, ManagementType.MANUAL);
-            typeFilterProvider = referenceContainer.manage(typeFilterProvider, ManagementType.MANUAL);
-            listenerProvider = referenceContainer.manage(listenerProvider, ManagementType.MANUAL);
+        public void initReferences(ReferenceManager referenceManager) {
+            emitterFilterProvider = referenceManager.manage(emitterFilterProvider, ManagementType.MANUAL);
+            typeFilterProvider = referenceManager.manage(typeFilterProvider, ManagementType.MANUAL);
+            listenerProvider = referenceManager.manage(listenerProvider, ManagementType.MANUAL);
         }
 
         Provider<Filter> emitterFilterProvider;
