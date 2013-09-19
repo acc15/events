@@ -46,6 +46,13 @@
         </developer>
     </developers>
 
+    <distributionManagement>
+        <repository>
+            <id>home</id>
+            <url>file:/E:/MyProgs/Libs/Java/repository</url>
+        </repository>
+    </distributionManagement>
+
     <scm>
         <connection>scm:git:https://github.com/acc15/events.git</connection>
         <developerConnection>scm:git:https://github.com/acc15/events.git</developerConnection>
