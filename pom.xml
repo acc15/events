@@ -47,8 +47,8 @@
     </developers>
 
     <scm>
-        <connection>https://github.com/acc15/events.git</connection>
-        <developerConnection>https://github.com/acc15/events.git</developerConnection>
+        <connection>git:https://github.com/acc15/events.git</connection>
+        <developerConnection>git:https://github.com/acc15/events.git</developerConnection>
         <url>https://github.com/acc15/events</url>
     </scm>
 
