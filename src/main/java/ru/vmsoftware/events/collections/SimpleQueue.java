@@ -13,7 +13,7 @@ package ru.vmsoftware.events.collections;
 public interface SimpleQueue<T> extends Iterable<T> {
 
     /**
-     * Checks whether this list is empty or not
+     * Checks whether this queue is empty or not
      *
      * @return {@code true} if list is empty, {@code false} otherwise
      */
