@@ -7,9 +7,10 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author Vyacheslav Mayorov
  * @since 2013-25-09
  */
-public class ConcurrentOpenLinkedQueue<E extends ConcurrentOpenLinkedQueue.ConcurrentLinkedEntry<E>> implements SimpleQueue<E> {
+public class ConcurrentOpenLinkedQueue<E extends ConcurrentOpenLinkedQueue.ConcurrentLinkedEntryBase<E>>
+        implements SimpleQueue<E> {
 
-    public static class ConcurrentLinkedEntry<E extends ConcurrentLinkedEntry<E>> {
+    public static class ConcurrentLinkedEntryBase<E extends ConcurrentLinkedEntryBase<E>> {
 
         private final AtomicReference<E> prev = new AtomicReference<E>(), next = new AtomicReference<E>();
 
@@ -28,6 +29,23 @@ public class ConcurrentOpenLinkedQueue<E extends ConcurrentOpenLinkedQueue.Concu
         public boolean casNext(E expectedEntry, E nextEntry) {
             return next.compareAndSet(expectedEntry, nextEntry);
         }
+
+        public void lazySetNext(E nextEntry) {
+            next.lazySet(nextEntry);
+        }
+    }
+
+    public static class ConcurrentLinkedEntry<T> extends ConcurrentLinkedEntryBase<ConcurrentLinkedEntry<T>> {
+
+        public ConcurrentLinkedEntry(T value) {
+            this.value = value;
+        }
+
+        public T getValue() {
+            return value;
+        }
+
+        private final T value;
     }
 
 
@@ -35,7 +53,7 @@ public class ConcurrentOpenLinkedQueue<E extends ConcurrentOpenLinkedQueue.Concu
 
 
     public boolean isEmpty() {
-        return head.get() == null;
+        return tail.get() == null;
     }
 
     public void clear() {
@@ -63,9 +81,44 @@ public class ConcurrentOpenLinkedQueue<E extends ConcurrentOpenLinkedQueue.Concu
         tail.lazySet(value);
     }
 
+    private void remove(E value) {
+        final E prev = value.getPrev();
+        final E next = value.getNext();
+        if (prev == null) {
+            head.lazySet(next);
+        } else {
+            prev.lazySetNext(next);
+        }
+        if (next == null) {
+            tail.lazySet(prev);
+        } else {
+            next.lazySetPrev(prev);
+        }
+    }
+
     public Iterator<E> iterator() {
-        // TODO implement..
-        return null;
+        return new Iterator<E>() {
+
+            private E next = head.get();
+            private E lastReturned;
+
+            public boolean hasNext() {
+                return next != null;
+            }
+
+            public E next() {
+                lastReturned = next;
+                next = next.getNext();
+                return lastReturned;
+            }
+
+            public void remove() {
+                if (lastReturned == null) {
+                    throw new IllegalStateException("next wasn't called");
+                }
+                ConcurrentOpenLinkedQueue.this.remove(lastReturned);
+            }
+        };
     }
 
 
