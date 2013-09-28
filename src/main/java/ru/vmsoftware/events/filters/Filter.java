@@ -7,12 +7,10 @@ package ru.vmsoftware.events.filters;
 public interface Filter<T> {
 
     /**
-     * Checks that specified value satisfies current filter.
-     *
-     * @param value value to check in filter
-     * @return <p>{@code true} if specified {@code value} is satisfies filter.
-     *         This {@code value} shouldn't be filtered.</p>
-     *         <p>{@code false} if {@code value} should be filtered</p>
+     * Checks whether given {@code value} satisfies current filter or not
+     * @param value value to check
+     * @return <p>{@code true} if given {@code value} satisfies filter</p>
+     *         <p>{@code false} if {@code value} doesn't satisfy filter</p>
      */
     boolean filter(T value);
 

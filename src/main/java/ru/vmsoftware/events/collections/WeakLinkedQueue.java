@@ -1,8 +1,7 @@
 package ru.vmsoftware.events.collections;
 
+import org.apache.commons.lang.ObjectUtils;
 import ru.vmsoftware.events.providers.Providers;
-
-import java.util.Iterator;
 
 /**
  * Simple adapter for {@link CustomWeakOpenLinkedQueue} which
@@ -30,21 +29,33 @@ public class WeakLinkedQueue<T> implements SimpleQueue<T> {
         list.add(entry);
     }
 
-    public Iterator<T> iterator() {
-        return new Iterator<T>() {
-            public boolean hasNext() {
-                return entryIterator.hasNext();
+    public boolean remove(final T value) {
+        SimpleWeakEntry<T> entry;
+        final SimpleIterator<SimpleWeakEntry<T>> iter = list.iterator();
+        while ((entry = iter.next()) != null) {
+            if (ObjectUtils.equals(value, entry.<T>getRef().get())) {
+                iter.remove();
+                return true;
             }
+        }
+        return false;
+    }
 
+    public SimpleIterator<T> iterator() {
+        return new SimpleIterator<T>() {
             public T next() {
-                return entryIterator.next().<T>getRef().get();
+                final SimpleWeakEntry<T> entry = entryIterator.next();
+                if (entry == null) {
+                    return null;
+                }
+                return entry.<T>getRef().get();
             }
 
-            public void remove() {
-                entryIterator.remove();
+            public boolean remove() {
+                return entryIterator.remove();
             }
 
-            private Iterator<SimpleWeakEntry<T>> entryIterator = list.iterator();
+            private SimpleIterator<SimpleWeakEntry<T>> entryIterator = list.iterator();
         };
     }
 

@@ -4,8 +4,6 @@ import org.junit.Test;
 import ru.vmsoftware.events.TestUtils;
 
 import java.util.ConcurrentModificationException;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -14,7 +12,8 @@ import static org.fest.assertions.api.Assertions.assertThat;
  * @author Vyacheslav Mayorov
  * @since 2013-01-05
  */
-public class WeakLinkedQueueTest {
+public class WeakLinkedQueueTest/* extends AbstractSimpleQueueTest<Integer>*/ {
+
 
     @Test
     public void testListRemoveEntriesAutomaticallyWhenTheyGarbageCollected() throws Exception {
@@ -41,7 +40,7 @@ public class WeakLinkedQueueTest {
         list.add(c);
         list.add(d);
 
-        final Iterator<Integer> iter = list.iterator();
+        final SimpleIterator<Integer> iter = list.iterator();
         assertThat(iter.next()).isEqualTo(a);
 
         c = null;
@@ -61,7 +60,7 @@ public class WeakLinkedQueueTest {
         assertThat(list.isEmpty()).isFalse();
         list.clear();
         assertThat(list.isEmpty()).isTrue();
-        TestUtils.assertIterator(list.iterator());
+        TestUtils.assertIterator(TestUtils.makeIterator(list.iterator()));
 
     }
 
@@ -70,7 +69,7 @@ public class WeakLinkedQueueTest {
         list.add(50);
         list.add(1050);
         assertThat(list.isEmpty()).isFalse();
-        TestUtils.assertIterator(list.iterator(), 50, 1050);
+        TestUtils.assertIterator(TestUtils.makeIterator(list.iterator()), 50, 1050);
     }
 
     @Test
@@ -80,15 +79,15 @@ public class WeakLinkedQueueTest {
         assertThat(list.isEmpty()).isFalse();
     }
 
-    @Test(expected = NoSuchElementException.class)
+    @Test
     public void testIteratorThrowsNoSuchElementException() throws Exception {
-        list.iterator().next();
+        assertThat(list.iterator().next()).isNull();
     }
 
     @Test(expected = ConcurrentModificationException.class)
     public void testIteratorThrowsConcurrentModificationException() throws Exception {
         list.add(10);
-        final Iterator<Integer> i = list.iterator();
+        final SimpleIterator<Integer> i = list.iterator();
         list.add(15);
         i.next();
     }
@@ -105,13 +104,13 @@ public class WeakLinkedQueueTest {
         list.add(15);
         list.add(20);
 
-        final Iterator<Integer> i = list.iterator();
+        final SimpleIterator<Integer> i = list.iterator();
         assertThat(i.next()).isEqualTo(10);
         assertThat(i.next()).isEqualTo(15);
         i.remove();
         assertThat(i.next()).isEqualTo(20);
 
-        TestUtils.assertIterator(list.iterator(), 10, 20);
+        TestUtils.assertIterator(TestUtils.makeIterator(list.iterator()), 10, 20);
     }
 
     private WeakLinkedQueue<Integer> list = new WeakLinkedQueue<Integer>();

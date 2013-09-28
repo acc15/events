@@ -1,6 +1,7 @@
 package ru.vmsoftware.events;
 
 import ru.vmsoftware.events.collections.CustomWeakOpenLinkedQueue;
+import ru.vmsoftware.events.collections.SimpleIterator;
 import ru.vmsoftware.events.collections.WeakLinkedQueue;
 import ru.vmsoftware.events.filters.Filter;
 import ru.vmsoftware.events.filters.Filters;
@@ -9,8 +10,6 @@ import ru.vmsoftware.events.providers.Provider;
 import ru.vmsoftware.events.references.ManagementType;
 import ru.vmsoftware.events.references.ReferenceInitializer;
 import ru.vmsoftware.events.references.ReferenceManager;
-
-import java.util.Iterator;
 
 import static ru.vmsoftware.events.providers.Providers.strongRef;
 
@@ -28,9 +27,9 @@ class DefaultEventManager extends AbstractRegistrar implements EventManager {
             }
 
             public void mute(Object listener) {
-                final Iterator<ListenerEntry> iter = entries.iterator();
-                while (iter.hasNext()) {
-                    final ListenerEntry e = iter.next();
+                ListenerEntry e;
+                final SimpleIterator<ListenerEntry> iter = entries.iterator();
+                while ((e = iter.next()) != null) {
                     final EventListener l = e.listenerProvider.get();
                     if (l != null && matchListener(l, listener)) {
                         list.remove(e);
@@ -40,8 +39,10 @@ class DefaultEventManager extends AbstractRegistrar implements EventManager {
             }
 
             public void cleanup() {
-                for (ListenerEntry l : entries) {
-                    list.remove(l);
+                ListenerEntry e;
+                final SimpleIterator<ListenerEntry> iter = entries.iterator();
+                while ((e = iter.next()) != null) {
+                    list.remove(e);
                 }
                 entries.clear();
             }
@@ -79,7 +80,9 @@ class DefaultEventManager extends AbstractRegistrar implements EventManager {
         ensureNotNull("emitter can't be null", emitter);
         ensureNotNull("type can't be null", type);
 
-        for (final ListenerEntry e : list) {
+        ListenerEntry e;
+        final SimpleIterator<ListenerEntry> iter = list.iterator();
+        while ((e = iter.next()) != null) {
 
             final Filter emitterFilter = e.emitterFilterProvider.get();
             if (!emitterFilter.filter(emitter)) {
@@ -100,9 +103,10 @@ class DefaultEventManager extends AbstractRegistrar implements EventManager {
     }
 
     public void mute(Object listener) {
-        final Iterator<ListenerEntry> iter = list.iterator();
-        while (iter.hasNext()) {
-            final EventListener l = iter.next().listenerProvider.get();
+        ListenerEntry e;
+        final SimpleIterator<ListenerEntry> iter = list.iterator();
+        while ((e = iter.next()) != null) {
+            final EventListener l = e.listenerProvider.get();
             if (matchListener(l, listener)) {
                 iter.remove();
             }

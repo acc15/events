@@ -1,6 +1,8 @@
 package ru.vmsoftware.events.collections;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.junit.Test;
+import ru.vmsoftware.events.TestUtils;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -47,21 +49,33 @@ public class ConcurrentOpenLinkedQueueTest {
             entryQueue.add(new ConcurrentOpenLinkedQueue.ConcurrentLinkedEntry<T>(value));
         }
 
-        public Iterator<T> iterator() {
-            return new Iterator<T>() {
-                public boolean hasNext() {
-                    return iter.hasNext();
-                }
-
-                public T next() {
-                    return iter.next().getValue();
-                }
-
-                public void remove() {
+        public boolean remove(T value) {
+            ConcurrentOpenLinkedQueue.ConcurrentLinkedEntry<T> entry;
+            final SimpleIterator<ConcurrentOpenLinkedQueue.ConcurrentLinkedEntry<T>> iter = entryQueue.iterator();
+            while ((entry = iter.next()) != null) {
+                if (ObjectUtils.equals(value, entry.getValue())) {
                     iter.remove();
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public SimpleIterator<T> iterator() {
+            return new SimpleIterator<T>() {
+                public T next() {
+                    final ConcurrentOpenLinkedQueue.ConcurrentLinkedEntry<T> entry = iter.next();
+                    if (entry == null) {
+                        return null;
+                    }
+                    return entry.getValue();
                 }
 
-                private Iterator<ConcurrentOpenLinkedQueue.ConcurrentLinkedEntry<T>> iter =
+                public boolean remove() {
+                    return iter.remove();
+                }
+
+                private SimpleIterator<ConcurrentOpenLinkedQueue.ConcurrentLinkedEntry<T>> iter =
                         entryQueue.iterator();
             };
         }
@@ -119,7 +133,7 @@ public class ConcurrentOpenLinkedQueueTest {
                 final int value = i;
                 executor.execute(new Runnable() {
                     public void run() {
-                        final Iterator<Integer> itr = queue.iterator();
+                        final SimpleIterator<Integer> itr = queue.iterator();
                         final String threadId = "Thread " + Thread.currentThread().getId();
                         for (int i=0; i<=value+startOffset; i++) {
                             final Integer v = itr.next();
@@ -139,7 +153,9 @@ public class ConcurrentOpenLinkedQueueTest {
             latch.await();
 
             testList.subList(startOffset, startOffset + sequenceSize).clear();
-            assertThat(queue).containsExactly(testList.toArray(new Integer[testList.size()]));
+            TestUtils.assertIterator(
+                    TestUtils.makeIterator(queue.iterator()),
+                    testList.toArray(new Integer[testList.size()]));
         }
     }
 
@@ -170,7 +186,7 @@ public class ConcurrentOpenLinkedQueueTest {
         for (int i=0; i<threadCount*addCount; i++) {
             expectedValues.add(i);
         }
-        assertThat(queue).containsAll(expectedValues);
+        assertThat(TestUtils.makeIterable(queue)).containsAll(expectedValues);
     }
 
     @Test

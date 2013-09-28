@@ -4,8 +4,6 @@ import org.junit.Test;
 import ru.vmsoftware.events.TestUtils;
 import ru.vmsoftware.events.providers.Providers;
 
-import java.util.Iterator;
-
 import static org.fest.assertions.api.Assertions.assertThat;
 
 
@@ -13,7 +11,7 @@ import static org.fest.assertions.api.Assertions.assertThat;
  * @author Vyacheslav Mayorov
  * @since 2013-05-05
  */
-public class CustomWeakLinkedListTest extends AbstractLinkedListTest<CustomWeakLinkedListTest.TestWeakEntry> {
+public class CustomWeakLinkedListTest extends AbstractSimpleQueueTest<CustomWeakLinkedListTest.TestWeakEntry> {
 
     private CustomWeakOpenLinkedQueue<TestWeakEntry> list = new CustomWeakOpenLinkedQueue<TestWeakEntry>();
 
@@ -48,7 +46,7 @@ public class CustomWeakLinkedListTest extends AbstractLinkedListTest<CustomWeakL
         return testEntries;
     }
 
-    protected CircularOpenLinkedQueue<TestWeakEntry> getList() {
+    protected CircularOpenLinkedQueue<TestWeakEntry> getQueue() {
         return list;
     }
 
@@ -69,7 +67,7 @@ public class CustomWeakLinkedListTest extends AbstractLinkedListTest<CustomWeakL
 
     @Test
     public void testListRemoveEntriesAutomaticallyWhenTheyGarbageCollected() throws Exception {
-        getList().add(testEntries[0]);
+        getQueue().add(testEntries[0]);
         a = null;
 
         TestUtils.forceGC();
@@ -78,16 +76,16 @@ public class CustomWeakLinkedListTest extends AbstractLinkedListTest<CustomWeakL
 
     @Test
     public void testIteratorShouldSkipGCEntries() throws Exception {
-        getList().add(testEntries[0]);
-        getList().add(testEntries[1]);
-        getList().add(testEntries[2]);
+        getQueue().add(testEntries[0]);
+        getQueue().add(testEntries[1]);
+        getQueue().add(testEntries[2]);
 
-        final Iterator<TestWeakEntry> iter = list.iterator();
+        final SimpleIterator<TestWeakEntry> iter = list.iterator();
         assertThat(iter.next()).isEqualTo(testEntries[0]);
 
         c = null;
         TestUtils.forceGC();
-        TestUtils.assertIterator(iter, testEntries[1]);
+        TestUtils.assertIterator(TestUtils.makeIterator(iter), testEntries[1]);
     }
 
     static class TestWeakEntry extends CustomWeakOpenLinkedQueue.WeakEntry<TestWeakEntry> {

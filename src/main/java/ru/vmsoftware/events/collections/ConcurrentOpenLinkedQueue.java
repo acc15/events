@@ -1,6 +1,5 @@
 package ru.vmsoftware.events.collections;
 
-import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -81,7 +80,7 @@ public class ConcurrentOpenLinkedQueue<E extends ConcurrentOpenLinkedQueue.Concu
         tail.lazySet(value);
     }
 
-    private void remove(E value) {
+    public boolean remove(E value) {
         final E prev = value.getPrev();
         final E next = value.getNext();
         if (prev == null) {
@@ -94,17 +93,14 @@ public class ConcurrentOpenLinkedQueue<E extends ConcurrentOpenLinkedQueue.Concu
         } else {
             next.lazySetPrev(prev);
         }
+        return true;
     }
 
-    public Iterator<E> iterator() {
-        return new Iterator<E>() {
+    public SimpleIterator<E> iterator() {
+        return new SimpleIterator<E>() {
 
             private E next = head.get();
             private E lastReturned;
-
-            public boolean hasNext() {
-                return next != null;
-            }
 
             public E next() {
                 lastReturned = next;
@@ -112,11 +108,11 @@ public class ConcurrentOpenLinkedQueue<E extends ConcurrentOpenLinkedQueue.Concu
                 return lastReturned;
             }
 
-            public void remove() {
+            public boolean remove() {
                 if (lastReturned == null) {
                     throw new IllegalStateException("next wasn't called");
                 }
-                ConcurrentOpenLinkedQueue.this.remove(lastReturned);
+                return ConcurrentOpenLinkedQueue.this.remove(lastReturned);
             }
         };
     }

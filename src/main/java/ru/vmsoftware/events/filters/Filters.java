@@ -5,12 +5,16 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
+ * Utility class for creating {@link ru.vmsoftware.events.filters.Filter} implementations.
  * @author Vyacheslav Mayorov
  * @since 2013-08-05
  */
 public class Filters {
 
     private static final AnyFilter<Object> ANY_FILTER_INSTANCE = new AnyFilter<Object>();
+
+    // to prevent instantiation
+    private Filters() {}
 
     private static <T> List<Filter<T>> wrapWithEqualTo(T... values) {
         final List<Filter<T>> filterList = new ArrayList<Filter<T>>();

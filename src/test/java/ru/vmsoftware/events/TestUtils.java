@@ -2,6 +2,8 @@ package ru.vmsoftware.events;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.fest.assertions.api.Assertions;
+import ru.vmsoftware.events.collections.SimpleIterator;
+import ru.vmsoftware.events.collections.SimpleQueue;
 
 import java.lang.ref.WeakReference;
 import java.util.*;
@@ -51,6 +53,38 @@ public class TestUtils {
             System.gc();
         }
         Thread.sleep(200);
+    }
+
+    public static <T> Iterable<T> makeIterable(final SimpleQueue<T> simpleQueue) {
+        return new Iterable<T>() {
+            public Iterator<T> iterator() {
+                return makeIterator(simpleQueue.iterator());
+            }
+        };
+    }
+
+    public static <T> Iterator<T> makeIterator(final SimpleIterator<T> iter) {
+        return new Iterator<T>() {
+
+            private T next = iter.next();
+
+            public boolean hasNext() {
+                return next != null;
+            }
+
+            public T next() {
+                if (this.next == null) {
+                    throw new IllegalStateException();
+                }
+                final T result = this.next;
+                this.next = iter.next();
+                return result;
+            }
+
+            public void remove() {
+                iter.remove();
+            }
+        };
     }
 
     public static <L, R> void assertIterator(Iterator<L> iter, R... values) {

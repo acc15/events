@@ -10,11 +10,10 @@ package ru.vmsoftware.events.collections;
  * @author Vyacheslav Mayorov
  * @since 2013-01-05
  */
-public interface SimpleQueue<T> extends Iterable<T> {
+public interface SimpleQueue<T>  {
 
     /**
      * Checks whether this queue is empty or not
-     *
      * @return {@code true} if list is empty, {@code false} otherwise
      */
     boolean isEmpty();
@@ -26,9 +25,20 @@ public interface SimpleQueue<T> extends Iterable<T> {
 
     /**
      * Inserts {@code value} at last position
-     *
      * @param value value to insert
      */
     void add(T value);
+
+    /**
+     * Removes specified value from collection
+     * @param value value to remove
+     */
+    boolean remove(T value);
+
+    /**
+     * Returns an {@link SimpleIterator}
+     * @return iterator for iterating over collection items
+     */
+    SimpleIterator<T> iterator();
 
 }

@@ -7,7 +7,6 @@ import ru.vmsoftware.events.references.AbstractReferenceManager;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -33,7 +32,7 @@ public class CustomWeakOpenLinkedQueue<E extends CustomWeakOpenLinkedQueue.WeakE
         return new WeakEntryManager(entry);
     }
 
-    public Iterator<E> iterator() {
+    public SimpleIterator<E> iterator() {
         return new WeakIterator();
     }
 
@@ -116,7 +115,7 @@ public class CustomWeakOpenLinkedQueue<E extends CustomWeakOpenLinkedQueue.WeakE
         }
 
         /**
-         * Holder of strong refs between {@link #hasNext()} and {@link #next()} calls
+         * Holder of strong refs between consecutive {@link #next()} calls
          */
         @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
         private List<Object> strongRefs;

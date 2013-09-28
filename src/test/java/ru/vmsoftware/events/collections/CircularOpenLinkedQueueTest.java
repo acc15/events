@@ -4,7 +4,7 @@ package ru.vmsoftware.events.collections;
  * @author Vyacheslav Mayorov
  * @since 2013-04-05
  */
-public class CircularLinkedListTest extends AbstractLinkedListTest<CircularLinkedListTest.IntEntry> {
+public class CircularOpenLinkedQueueTest extends AbstractSimpleQueueTest<CircularOpenLinkedQueueTest.IntEntry> {
 
     private IntEntry[] testEntries = new IntEntry[]{new IntEntry(10), new IntEntry(15), new IntEntry(20)};
 
@@ -12,7 +12,7 @@ public class CircularLinkedListTest extends AbstractLinkedListTest<CircularLinke
         return testEntries;
     }
 
-    protected CircularOpenLinkedQueue<IntEntry> getList() {
+    protected CircularOpenLinkedQueue<IntEntry> getQueue() {
         return list;
     }
 

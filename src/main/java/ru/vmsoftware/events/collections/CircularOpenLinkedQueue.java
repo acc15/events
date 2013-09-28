@@ -1,8 +1,6 @@
 package ru.vmsoftware.events.collections;
 
 import java.util.ConcurrentModificationException;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
 
 /**
  * @author Vyacheslav Mayorov
@@ -59,7 +57,7 @@ public class CircularOpenLinkedQueue<E extends DoubleLinkedEntry<E>> implements 
         return true;
     }
 
-    public Iterator<E> iterator() {
+    public SimpleIterator<E> iterator() {
         return new CircularListIterator();
     }
 
@@ -87,22 +85,19 @@ public class CircularOpenLinkedQueue<E extends DoubleLinkedEntry<E>> implements 
         entry.setPrevious(null);
     }
 
-    protected class CircularListIterator implements Iterator<E> {
-        public boolean hasNext() {
-            return next != null;
-        }
+    protected class CircularListIterator implements SimpleIterator<E> {
 
         public E next() {
-            ensureNotModified();
             if (next == null) {
-                throw new NoSuchElementException();
+                return null;
             }
+            ensureNotModified();
             lastReturned = next;
             next = lookupNext(next);
             return lastReturned;
         }
 
-        public void remove() {
+        public boolean remove() {
             ensureNotModified();
             if (lastReturned == null) {
                 throw new IllegalStateException();
@@ -110,6 +105,7 @@ public class CircularOpenLinkedQueue<E extends DoubleLinkedEntry<E>> implements 
             ++expectedModCount;
             CircularOpenLinkedQueue.this.remove(lastReturned);
             lastReturned = null;
+            return true;
         }
 
         protected E lookupNext(final E entry) {

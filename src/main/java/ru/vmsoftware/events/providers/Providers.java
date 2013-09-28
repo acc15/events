@@ -4,6 +4,7 @@ import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 
 /**
+ * Utility class for creating {@link Provider} implementations.
  * @author Vyacheslav Mayorov
  * @since 2013-29-04
  */
