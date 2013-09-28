@@ -8,7 +8,7 @@ import java.lang.ref.Reference;
  */
 class ReferenceProvider<T> implements Provider<T> {
 
-    public ReferenceProvider(Reference<T> ref) {
+    ReferenceProvider(Reference<T> ref) {
         this.ref = ref;
     }
 

@@ -5,7 +5,7 @@ package ru.vmsoftware.events.providers;
  * @since 2013-29-04
  */
 class StrongProvider<T> implements Provider<T> {
-    public StrongProvider(T ref) {
+    StrongProvider(T ref) {
         this.ref = ref;
     }
 

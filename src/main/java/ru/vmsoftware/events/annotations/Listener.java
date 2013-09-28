@@ -15,7 +15,7 @@ public @interface Listener {
 
     /**
      * Field name of emitter object instance.
-     * Allows to listen specific instance of emitter which is stored in specified field of listener object
+     * Allows to listen specific instance of emitter which is stored in specific field of listener object
      *
      * @return field name where emitter instance should be looked up
      */
@@ -42,7 +42,7 @@ public @interface Listener {
     Class<?> emitterClass() default Void.class;
 
     /**
-     * Emitter value allows to listen events from emitters which matches specified {@link #toString()} value
+     * Emitter value allows to listen events from emitters which has specified {@link #toString()} value
      *
      * @return emitter {@link #toString()} value
      */
