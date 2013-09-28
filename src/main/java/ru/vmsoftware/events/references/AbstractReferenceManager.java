@@ -30,8 +30,6 @@ public abstract class AbstractReferenceManager implements ReferenceManager {
         return manage(provider, CONTAINER);
     }
 
-    protected abstract <T> Provider<T> manageObject(T obj);
-
     private void initObjects(List<?> objects) {
         for (Object obj : objects) {
             if (obj instanceof ReferenceInitializer) {
@@ -41,4 +39,6 @@ public abstract class AbstractReferenceManager implements ReferenceManager {
             }
         }
     }
+
+    protected abstract <T> Provider<T> manageObject(T obj);
 }

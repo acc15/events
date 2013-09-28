@@ -25,7 +25,7 @@ public class WeakLinkedQueue<T> implements SimpleQueue<T> {
 
     public void add(T value) {
         final SimpleWeakEntry<T> entry = new SimpleWeakEntry<T>();
-        list.createEntryContainer(entry).manage(Providers.strongRef(value));
+        list.getReferenceManager(entry).manage(Providers.strongRef(value));
         list.add(entry);
     }
 

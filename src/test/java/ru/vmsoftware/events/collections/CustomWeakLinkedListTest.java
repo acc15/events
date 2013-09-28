@@ -17,7 +17,7 @@ public class CustomWeakLinkedListTest extends AbstractSimpleQueueTest<CustomWeak
 
     private TestWeakEntry createEntry(Object... refs) {
         final TestWeakEntry entry = new TestWeakEntry();
-        final CustomWeakOpenLinkedQueue.WeakEntryManager container = list.createEntryContainer(entry);
+        final CustomWeakOpenLinkedQueue.WeakEntryManager container = list.getReferenceManager(entry);
         for (Object ref : refs) {
             container.manage(Providers.strongRef(ref));
         }

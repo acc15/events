@@ -1,8 +1,6 @@
 package ru.vmsoftware.events;
 
-import ru.vmsoftware.events.collections.CustomWeakOpenLinkedQueue;
-import ru.vmsoftware.events.collections.SimpleIterator;
-import ru.vmsoftware.events.collections.WeakLinkedQueue;
+import ru.vmsoftware.events.collections.*;
 import ru.vmsoftware.events.filters.Filter;
 import ru.vmsoftware.events.filters.Filters;
 import ru.vmsoftware.events.listeners.EventListener;
@@ -130,7 +128,13 @@ class DefaultEventManager extends AbstractRegistrar implements EventManager {
                 createFilterByObject(emitter),
                 createFilterByObject(type),
                 listener);
-        entry.initReferences(list.createEntryContainer(entry));
+
+        final ReferenceManager referenceManager = list.getEntryManager(entry);
+        try {
+            entry.initReferences(referenceManager);
+        } finally {
+            referenceManager.finish();
+        }
 
         list.add(entry);
         return entry;
@@ -172,5 +176,7 @@ class DefaultEventManager extends AbstractRegistrar implements EventManager {
         }
     }
 
-    CustomWeakOpenLinkedQueue<ListenerEntry> list = new CustomWeakOpenLinkedQueue<ListenerEntry>();
+    ConcurrentWeakQueueDecorator<ListenerEntry> list = new ConcurrentWeakQueueDecorator<ListenerEntry>(
+        new CircularOpenLinkedQueue<ListenerEntry>()
+    );
 }

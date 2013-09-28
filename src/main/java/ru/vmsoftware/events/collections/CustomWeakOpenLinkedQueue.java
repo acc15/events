@@ -25,10 +25,13 @@ public class CustomWeakOpenLinkedQueue<E extends CustomWeakOpenLinkedQueue.WeakE
             return Providers.ref(entry.addRef(obj, staleRefs));
         }
 
+        public void finish() {
+        }
+
         private E entry;
     }
 
-    public WeakEntryManager createEntryContainer(E entry) {
+    public WeakEntryManager getReferenceManager(E entry) {
         return new WeakEntryManager(entry);
     }
 

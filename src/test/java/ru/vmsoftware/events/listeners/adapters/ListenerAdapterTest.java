@@ -50,14 +50,18 @@ public class ListenerAdapterTest {
                 isEqualTo(TestUtils.tail(TestData.PARAMETERS, paramCount));
         assertThat(eventListener.isCounterpart(l)).isTrue();
         assertThat(eventListener).isInstanceOf(ReferenceInitializer.class);
+
         ((ReferenceInitializer)eventListener).initReferences(new ReferenceManager() {
             public <T> Provider<T> manage(Provider<T> provider, ManagementType defaultType) {
                 return manage(provider);
             }
 
             public <T> Provider<T> manage(Provider<T> provider) {
-                assertThat(provider.get()).isSameAs((T)l);
+                assertThat(provider.get()).isSameAs((T) l);
                 return provider;
+            }
+
+            public void finish() {
             }
         });
     }

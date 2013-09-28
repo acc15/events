@@ -31,4 +31,12 @@ public interface ReferenceManager {
      * @return  provider
      */
     <T> Provider<T> manage(Provider<T> provider);
+
+    /**
+     * Method which should be called by clients as a signal that all references was added
+     * and manager can perform some final steps and cleanup if needed. Note that after this call
+     * current {@link ReferenceManager} can't be used and implementations should throw {@link IllegalStateException}
+     */
+    void finish();
+
 }
