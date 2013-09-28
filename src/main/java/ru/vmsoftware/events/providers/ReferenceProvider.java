@@ -16,5 +16,5 @@ class ReferenceProvider<T> implements Provider<T> {
         return ref.get();
     }
 
-    private Reference<T> ref;
+    private final Reference<T> ref;
 }

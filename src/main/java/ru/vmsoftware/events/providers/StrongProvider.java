@@ -13,5 +13,5 @@ class StrongProvider<T> implements Provider<T> {
         return ref;
     }
 
-    private T ref;
+    private final T ref;
 }

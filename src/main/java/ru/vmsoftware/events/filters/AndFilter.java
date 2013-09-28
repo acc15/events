@@ -2,6 +2,7 @@ package ru.vmsoftware.events.filters;
 
 import ru.vmsoftware.events.references.CompositeObject;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -10,12 +11,12 @@ import java.util.List;
  */
 class AndFilter<T> implements Filter<T>, CompositeObject<Filter<T>> {
 
-    AndFilter(List<Filter<T>> filters) {
+    AndFilter(final List<Filter<T>> filters) {
         this.filters = filters;
     }
 
     public boolean filter(T value) {
-        for (Filter<T> filter : filters) {
+        for (final Filter<T> filter : filters) {
             if (!filter.filter(value)) {
                 return false;
             }
@@ -24,8 +25,8 @@ class AndFilter<T> implements Filter<T>, CompositeObject<Filter<T>> {
     }
 
     public List<Filter<T>> getUnderlyingObjects() {
-        return filters;
+        return Collections.unmodifiableList(filters);
     }
 
-    private List<Filter<T>> filters;
+    private final List<Filter<T>> filters;
 }
