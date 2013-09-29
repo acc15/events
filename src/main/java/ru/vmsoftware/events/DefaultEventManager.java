@@ -123,12 +123,11 @@ class DefaultEventManager extends AbstractRegistrar implements EventManager {
                 createFilterByObject(type),
                 listener);
         final ListenerEntry entry = new ListenerEntry(header);
-        queue.add(entry);
-
         final WeakOpenQueueReferenceManager<ListenerEntry> referenceManager = new
                 WeakOpenQueueReferenceManager<ListenerEntry>(queue, entry);
         header.initReferences(referenceManager);
         header.setReferences(referenceManager.getReferences());
+        queue.add(entry);
         return entry;
     }
 

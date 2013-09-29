@@ -35,10 +35,13 @@ public class WeakOpenQueue<T,E extends WeakContainer<T>> implements SimpleQueue<
     }
 
     public boolean isEmpty() {
+        cleanupStaleRefs();
         return queue.isEmpty();
     }
 
+    @SuppressWarnings("StatementWithEmptyBody")
     public void clear() {
+        while (referenceQueue.poll() != null);
         queue.clear();
     }
 
@@ -78,6 +81,7 @@ public class WeakOpenQueue<T,E extends WeakContainer<T>> implements SimpleQueue<
             for (Reference<?> ref: refs) {
                 final Object obj = ref.get();
                 if (obj == null) {
+                    strongRefs.clear();
                     return false;
                 }
                 strongRefs.add(obj);
@@ -105,5 +109,10 @@ public class WeakOpenQueue<T,E extends WeakContainer<T>> implements SimpleQueue<
         while ((ref = (Ref<?, E>) referenceQueue.poll()) != null) {
             queue.remove(ref.entry);
         }
+    }
+
+    @Override
+    public String toString() {
+        return queue.toString();
     }
 }

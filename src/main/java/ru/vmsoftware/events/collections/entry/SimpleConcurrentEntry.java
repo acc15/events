@@ -24,11 +24,11 @@ public class SimpleConcurrentEntry<E extends ConcurrentEntry<E>> implements Conc
     }
 
     public void setPrev(E prev) {
-        this.prev.lazySet(prev);
+        this.prev.set(prev);
     }
 
     public void setNext(E next) {
-        this.next.lazySet(next);
+        this.next.set(next);
     }
 
 }

@@ -28,7 +28,9 @@ public class WeakOpenQueueReferenceManager<E extends WeakContainer<Object>> exte
     @Override
     @SuppressWarnings("unchecked")
     protected <T> Provider<T> manageObject(T obj) {
-        return (Provider<T>)Providers.ref(weakOpenQueue.createReference(entry, obj));
+        final Reference<Object> ref = weakOpenQueue.createReference(entry, obj);
+        references.add(ref);
+        return (Provider<T>)Providers.ref(ref);
     }
 
     public List<Reference<Object>> getReferences() {

@@ -1,5 +1,6 @@
 package ru.vmsoftware.events.collections;
 
+import org.apache.commons.lang.ObjectUtils;
 import ru.vmsoftware.events.collections.entry.AbstractEntryFactory;
 import ru.vmsoftware.events.collections.entry.SimpleConcurrentEntry;
 import ru.vmsoftware.events.collections.entry.WeakContainer;
@@ -26,7 +27,7 @@ public class WeakQueue<T> implements SimpleQueue<T> {
         }
 
         public List<Reference<T>> getReferences() {
-            return Collections.singletonList(ref);
+            return ref != null ? Collections.singletonList(ref) : Collections.<Reference<T>>emptyList();
         }
     }
 
@@ -60,17 +61,43 @@ public class WeakQueue<T> implements SimpleQueue<T> {
 
     public void add(T value) {
         final WeakEntry<T> entry = new WeakEntry<T>();
-        entry.setRef(queue.createReference(entry, value));
+        final Reference<T> ref = queue.createReference(entry, value);
+        entry.setRef(ref);
         queue.add(entry);
     }
 
     public boolean remove(T value) {
-        // TODO implement..
+        WeakEntry<T> e;
+        final SimpleIterator<WeakEntry<T>> iter = queue.iterator();
+        while ((e = iter.next()) != null) {
+            if (ObjectUtils.equals(e.ref.get(), value)) {
+                return true;
+            }
+        }
         return false;
     }
 
     public SimpleIterator<T> iterator() {
-        // TODO implement..
-        return null;
+        return new SimpleIterator<T>() {
+
+            private SimpleIterator<WeakEntry<T>> iter = queue.iterator();
+
+            public T next() {
+                final WeakEntry<T> e = iter.next();
+                if (e == null) {
+                    return null;
+                }
+                return e.ref.get();
+            }
+
+            public boolean remove() {
+                return iter.remove();
+            }
+        };
+    }
+
+    @Override
+    public String toString() {
+        return SimpleQueueUtils.toString(this);
     }
 }
