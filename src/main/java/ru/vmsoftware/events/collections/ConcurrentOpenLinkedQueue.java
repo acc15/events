@@ -18,11 +18,9 @@ public class ConcurrentOpenLinkedQueue<E extends ConcurrentEntry<E>> implements 
 
     public ConcurrentOpenLinkedQueue(EntryFactory<E> factory) {
         this.factory = factory;
-        final E h = factory.createEntry(null, null);
-        final E t = factory.createEntry(h, null);
-        h.setNext(t);
-        this.head = h;
-        this.tail = t;
+        this.head = factory.createEntry(null, null);
+        this.tail = factory.createEntry(head, null);
+        this.head.setNext(this.tail);
     }
 
     public boolean isEmpty() {
