@@ -10,12 +10,9 @@ public class EntryUtils {
         return e.getPrev() == e;
     }
 
-    public static <E extends ConcurrentEntry<E>> E nonMarker(E e) {
-        return isMarker(e) ? e.getNext() : e;
-    }
-
     public static <E extends ConcurrentEntry<E>> E nextNonMarker(E e) {
-        return nonMarker(e.getNext());
+        final E next = e.getNext();
+        return isMarker(next) ? next.getNext() : next;
     }
 
     public static boolean isHead(Entry<?> e) {
