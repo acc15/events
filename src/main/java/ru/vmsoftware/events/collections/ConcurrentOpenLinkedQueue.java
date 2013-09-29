@@ -16,9 +16,10 @@ public class ConcurrentOpenLinkedQueue<E extends ConcurrentEntry<E>> implements 
     public ConcurrentOpenLinkedQueue(EntryFactory<E> factory) {
         this.factory = factory;
         final E h = factory.createEntry(null, null);
-        this.tail = factory.createEntry(h, null);
-        h.setNext(tail);
+        final E t = factory.createEntry(h, null);
+        h.setNext(t);
         this.head = h;
+        this.tail = t;
     }
 
     public boolean isEmpty() {
@@ -63,22 +64,27 @@ public class ConcurrentOpenLinkedQueue<E extends ConcurrentEntry<E>> implements 
             private E entry = head;
 
             public E next() {
-                // TODO fix links prev/next linked to deleted (marked) nodes (this is potential memory leak)
-                while ((entry = entry.getNext()) != null) {
-                    if (EntryUtils.isTail(entry)) {
-                        return null;
-                    } else if (EntryUtils.isMarker(entry)) {
-                        continue;
-                    }
-
-                    final E nextOver = entry.getNext();
-                    if (EntryUtils.isMarker(nextOver)) {
-                        entry = nextOver;
-                        continue;
-                    }
-                    break;
+                if (entry == null) {
+                    throw new IllegalStateException("no more items available");
                 }
-                return entry;
+                E next = EntryUtils.nextNonMarker(entry);
+                for (;;) {
+                    if (EntryUtils.isTail(next)) {
+                        entry = null;
+                        return null;
+                    }
+                    final E nextNext = next.getNext();
+                    if (!EntryUtils.isMarker(nextNext)) {
+                        if (!EntryUtils.isDeleted(entry)) {
+                            next.setPrev(entry);
+                        }
+                        entry = next;
+                        return entry;
+                    }
+                    final E nextNextNext = nextNext.getNext();
+                    entry.casNext(next, nextNextNext);
+                    next = nextNextNext;
+                }
             }
 
             public boolean remove() {

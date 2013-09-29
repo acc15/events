@@ -8,14 +8,14 @@ public abstract class AbstractEntryFactory<E extends Entry<E>> implements EntryF
 
     protected abstract E createEntry();
 
-    public final E createEntry(E prev, E next) {
+    public E createEntry(E prev, E next) {
         final E entry = createEntry();
         entry.setPrev(prev);
         entry.setNext(next);
         return entry;
     }
 
-    public final E createMarker(E next) {
+    public E createMarker(E next) {
         final E entry = createEntry();
         entry.setPrev(entry);
         entry.setNext(next);

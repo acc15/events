@@ -1,17 +1,18 @@
 package ru.vmsoftware.events.collections;
 
+import org.junit.Test;
+import ru.vmsoftware.events.TestUtils;
+
+import java.util.*;
+import java.util.concurrent.*;
+
+import static org.fest.assertions.api.Assertions.assertThat;
+
 /**
  * @author Vyacheslav Mayorov
  * @since 2013-26-09
  */
 public class ConcurrentOpenLinkedQueueTest {
-/*
-
-    private boolean simpleBoolean = false;
-
-    private AtomicReference<?> hint = new AtomicReference<Object>();
-
-    private Executor executor = Executors.newCachedThreadPool();
 
     private static boolean waitBarrier(CyclicBarrier barrier) {
         try {
@@ -26,76 +27,6 @@ public class ConcurrentOpenLinkedQueueTest {
         }
     }
 
-    private static class TestQueue<T> implements SimpleQueue<T> {
-        public boolean isEmpty() {
-            return entryQueue.isEmpty();
-        }
-
-        public void clear() {
-            entryQueue.clear();
-        }
-
-        public void add(T value) {
-            entryQueue.add(new ConcurrentOpenLinkedQueue.ConcurrentLinkedEntry<T>(value));
-        }
-
-        public boolean remove(T value) {
-            ConcurrentOpenLinkedQueue.ConcurrentLinkedEntry<T> entry;
-            final SimpleIterator<ConcurrentOpenLinkedQueue.ConcurrentLinkedEntry<T>> iter = entryQueue.iterator();
-            while ((entry = iter.next()) != null) {
-                if (ObjectUtils.equals(value, entry.getValue())) {
-                    iter.remove();
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        public SimpleIterator<T> iterator() {
-            return new SimpleIterator<T>() {
-                public T next() {
-                    final ConcurrentOpenLinkedQueue.ConcurrentLinkedEntry<T> entry = iter.next();
-                    if (entry == null) {
-                        return null;
-                    }
-                    return entry.getValue();
-                }
-
-                public boolean remove() {
-                    return iter.remove();
-                }
-
-                private SimpleIterator<ConcurrentOpenLinkedQueue.ConcurrentLinkedEntry<T>> iter =
-                        entryQueue.iterator();
-            };
-        }
-
-        private ConcurrentOpenLinkedQueue<ConcurrentOpenLinkedQueue.ConcurrentLinkedEntry<T>> entryQueue =
-                new ConcurrentOpenLinkedQueue<ConcurrentOpenLinkedQueue.ConcurrentLinkedEntry<T>>();
-    }
-
-    @Test(timeout = 1000)
-    public void testLazySetSynchoronizesVariable() throws Exception {
-        new Thread(new Runnable() {
-            public void run() {
-                simpleBoolean = true;
-
-                int x = 0;
-                for (;;) {
-                    x++;
-                }
-            }
-        }).start();
-
-        int x = 0;
-        while (!simpleBoolean) {
-            ++x;
-            hint.lazySet(null);
-        }
-        System.out.println(x + "###DONE");
-    }
-
-
     @Test
     public void testConsecutiveRemoval() throws Exception {
 
@@ -103,11 +34,7 @@ public class ConcurrentOpenLinkedQueueTest {
         final int sequenceSize = 150;
 
         for (int r=0;r<runTimes;r++) {
-            System.out.println("#####");
-            System.out.println("##### Run count: " + r);
-            System.out.println("#####");
-
-            final TestQueue<Integer> queue = new TestQueue<Integer>();
+            final TestConcurrentQueue<Integer> queue = new TestConcurrentQueue<Integer>();
 
             final List<Integer> testList = new ArrayList<Integer>();
             for (int i=0; i<sequenceSize + runTimes; i++) {
@@ -121,31 +48,34 @@ public class ConcurrentOpenLinkedQueueTest {
             final CountDownLatch latch = new CountDownLatch(sequenceSize);
             for (int i=0; i<sequenceSize; i++) {
                 final int value = i;
-                executor.execute(new Runnable() {
+                new Thread(new Runnable() {
                     public void run() {
                         final SimpleIterator<Integer> itr = queue.iterator();
-                        final String threadId = "Thread " + Thread.currentThread().getId();
                         for (int i=0; i<=value+startOffset; i++) {
                             final Integer v = itr.next();
-                            if (i == value) {
-                                System.out.println(threadId + ": value on itr: " + v);
-                            }
+                            assertThat(v).isEqualTo(i);
                         }
                         if (!waitBarrier(barrier)) {
                             return;
                         }
                         itr.remove();
-                        System.out.println(threadId + ": remove");
                         latch.countDown();
                     }
-                });
+                }).start();
             }
             latch.await();
 
             testList.subList(startOffset, startOffset + sequenceSize).clear();
-            TestUtils.assertIterator(
-                    TestUtils.makeIterator(queue.iterator()),
-                    testList.toArray(new Integer[testList.size()]));
+            assertThat(TestUtils.makeIterable(queue)).
+                    containsExactly(testList.toArray(new Integer[testList.size()]));
+
+            final TestConcurrentQueue.ListReport report = TestConcurrentQueue.reportDeadNodes(queue.getHead());
+            System.out.println(report);
+            assertThat(report.totalNextNodes).as("totalNextNodes").isEqualTo(testList.size());
+            assertThat(report.totalPrevNodes).as("totalPrevNodes").isEqualTo(testList.size());
+            assertThat(report.totalNextMarkers).as("totalNextMarkers").isEqualTo(0);
+            assertThat(report.totalPrevMarkers).as("totalPrevMarkers").isEqualTo(0);
+            assertThat(report.totalPrevIncorrectLinks).as("totalPrevIncorrectLinks").isEqualTo(0);
         }
     }
 
@@ -157,10 +87,10 @@ public class ConcurrentOpenLinkedQueueTest {
 
         final CyclicBarrier barrier = new CyclicBarrier(threadCount);
 
-        final TestQueue<Integer> queue = new TestQueue<Integer>();
+        final TestConcurrentQueue<Integer> queue = new TestConcurrentQueue<Integer>();
         for (int i=0; i<threadCount; i++) {
             final int t = i;
-            executor.execute(new Runnable() {
+            new Thread(new Runnable() {
                 public void run() {
                     if (!waitBarrier(barrier)) {
                         return;
@@ -169,14 +99,18 @@ public class ConcurrentOpenLinkedQueueTest {
                         queue.add(t*addCount+i);
                     }
                 }
-            });
+            }).start();
         }
 
         final Set<Integer> expectedValues = new HashSet<Integer>();
         for (int i=0; i<threadCount*addCount; i++) {
             expectedValues.add(i);
         }
+
+
         assertThat(TestUtils.makeIterable(queue)).containsAll(expectedValues);
+        System.out.println("FINISH: " + new Date());
+
     }
 
     @Test
@@ -193,6 +127,4 @@ public class ConcurrentOpenLinkedQueueTest {
 
 
     }
-
-    */
 }
