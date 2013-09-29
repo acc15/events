@@ -218,7 +218,7 @@ public class DefaultEventManagerTest implements Serializable {
         assertThat(manager.isClean()).isFalse();
         manager.mute(listener2);
 
-        Assertions.assertThat((Object) manager.list.iterator().next().listenerProvider.get()).isEqualTo(listener);
+        Assertions.assertThat((Object) manager.queue.iterator().next().header.listenerProvider.get()).isEqualTo(listener);
         manager.mute(listener);
 
         assertThat(manager.isClean()).isTrue();

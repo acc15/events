@@ -4,12 +4,6 @@ import ru.vmsoftware.events.collections.*;
 import ru.vmsoftware.events.filters.Filter;
 import ru.vmsoftware.events.filters.Filters;
 import ru.vmsoftware.events.listeners.EventListener;
-import ru.vmsoftware.events.providers.Provider;
-import ru.vmsoftware.events.references.ManagementType;
-import ru.vmsoftware.events.references.ReferenceInitializer;
-import ru.vmsoftware.events.references.ReferenceManager;
-
-import static ru.vmsoftware.events.providers.Providers.strongRef;
 
 /**
  * @author Vyacheslav Mayorov
@@ -21,16 +15,16 @@ class DefaultEventManager extends AbstractRegistrar implements EventManager {
         return new AbstractRegistrar() {
 
             public void listen(Object emitter, Object type, EventListener<?,?,?> listener) {
-                entries.add(createEntry(createFilterByObject(emitter), createFilterByObject(type), listener));
+                entries.add(createEntry(emitter, type, listener));
             }
 
             public void mute(Object listener) {
                 ListenerEntry e;
                 final SimpleIterator<ListenerEntry> iter = entries.iterator();
                 while ((e = iter.next()) != null) {
-                    final EventListener l = e.listenerProvider.get();
+                    final EventListener l = e.getHeader().listenerProvider.get();
                     if (l != null && matchListener(l, listener)) {
-                        list.remove(e);
+                        queue.remove(e);
                         iter.remove();
                     }
                 }
@@ -40,7 +34,7 @@ class DefaultEventManager extends AbstractRegistrar implements EventManager {
                 ListenerEntry e;
                 final SimpleIterator<ListenerEntry> iter = entries.iterator();
                 while ((e = iter.next()) != null) {
-                    list.remove(e);
+                    queue.remove(e);
                 }
                 entries.clear();
             }
@@ -49,7 +43,7 @@ class DefaultEventManager extends AbstractRegistrar implements EventManager {
                 return entries.isEmpty();
             }
 
-            private WeakLinkedQueue<ListenerEntry> entries = new WeakLinkedQueue<ListenerEntry>();
+            private WeakQueue<ListenerEntry> entries = new WeakQueue<ListenerEntry>();
         };
     }
 
@@ -79,20 +73,20 @@ class DefaultEventManager extends AbstractRegistrar implements EventManager {
         ensureNotNull("type can't be null", type);
 
         ListenerEntry e;
-        final SimpleIterator<ListenerEntry> iter = list.iterator();
+        final SimpleIterator<ListenerEntry> iter = queue.iterator();
         while ((e = iter.next()) != null) {
 
-            final Filter emitterFilter = e.emitterFilterProvider.get();
+            final Filter emitterFilter = e.getHeader().emitterFilterProvider.get();
             if (!emitterFilter.filter(emitter)) {
                 continue;
             }
 
-            final Filter typeFilter = e.typeFilterProvider.get();
+            final Filter typeFilter = e.getHeader().typeFilterProvider.get();
             if (!typeFilter.filter(type)) {
                 continue;
             }
 
-            final EventListener listener = e.listenerProvider.get();
+            final EventListener listener = e.getHeader().listenerProvider.get();
             if (!listener.handleEvent(emitter, type, data)) {
                 return false;
             }
@@ -102,9 +96,9 @@ class DefaultEventManager extends AbstractRegistrar implements EventManager {
 
     public void mute(Object listener) {
         ListenerEntry e;
-        final SimpleIterator<ListenerEntry> iter = list.iterator();
+        final SimpleIterator<ListenerEntry> iter = queue.iterator();
         while ((e = iter.next()) != null) {
-            final EventListener l = e.listenerProvider.get();
+            final EventListener l = e.getHeader().listenerProvider.get();
             if (matchListener(l, listener)) {
                 iter.remove();
             }
@@ -112,11 +106,11 @@ class DefaultEventManager extends AbstractRegistrar implements EventManager {
     }
 
     public void cleanup() {
-        list.clear();
+        queue.clear();
     }
 
     public boolean isClean() {
-        return list.isEmpty();
+        return queue.isEmpty();
     }
 
     ListenerEntry createEntry(Object emitter, Object type, EventListener<?, ?, ?> listener) {
@@ -124,38 +118,18 @@ class DefaultEventManager extends AbstractRegistrar implements EventManager {
         ensureNotNull("type can't be null", type);
         ensureNotNull("listener can't be null", listener);
 
-        final ListenerEntry entry = new ListenerEntry(
+        final ListenerEntry.Header header = new ListenerEntry.Header(
                 createFilterByObject(emitter),
                 createFilterByObject(type),
                 listener);
+        final ListenerEntry entry = new ListenerEntry(header);
+        queue.add(entry);
 
-        final ReferenceManager referenceManager = list.getEntryManager(entry);
-        try {
-            entry.initReferences(referenceManager);
-        } finally {
-            referenceManager.finish();
-        }
-
-        list.add(entry);
+        final WeakOpenQueueReferenceManager<ListenerEntry> referenceManager = new
+                WeakOpenQueueReferenceManager<ListenerEntry>(queue, entry);
+        header.initReferences(referenceManager);
+        header.setReferences(referenceManager.getReferences());
         return entry;
-    }
-
-    static class ListenerEntry extends CustomWeakOpenLinkedQueue.WeakEntry<ListenerEntry> implements ReferenceInitializer {
-        ListenerEntry(Filter emitterFilter, Filter typeFilter, EventListener listener) {
-            this.emitterFilterProvider = strongRef(emitterFilter);
-            this.typeFilterProvider = strongRef(typeFilter);
-            this.listenerProvider = strongRef(listener);
-        }
-
-        public void initReferences(ReferenceManager referenceManager) {
-            emitterFilterProvider = referenceManager.manage(emitterFilterProvider, ManagementType.MANUAL);
-            typeFilterProvider = referenceManager.manage(typeFilterProvider, ManagementType.MANUAL);
-            listenerProvider = referenceManager.manage(listenerProvider, ManagementType.MANUAL);
-        }
-
-        Provider<Filter> emitterFilterProvider;
-        Provider<Filter> typeFilterProvider;
-        Provider<EventListener> listenerProvider;
     }
 
     Filter<?> createFilterByObject(Object obj) {
@@ -176,7 +150,7 @@ class DefaultEventManager extends AbstractRegistrar implements EventManager {
         }
     }
 
-    ConcurrentWeakQueueDecorator<ListenerEntry> list = new ConcurrentWeakQueueDecorator<ListenerEntry>(
-        new CircularOpenLinkedQueue<ListenerEntry>()
+    WeakOpenQueue<Object, ListenerEntry> queue = new WeakOpenQueue<Object, ListenerEntry>(
+        new ConcurrentOpenLinkedQueue<ListenerEntry>(ListenerEntry.ListenerEntryFactory.getInstance())
     );
 }

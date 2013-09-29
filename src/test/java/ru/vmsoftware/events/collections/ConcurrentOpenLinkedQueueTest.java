@@ -1,21 +1,11 @@
 package ru.vmsoftware.events.collections;
 
-import org.apache.commons.lang.ObjectUtils;
-import org.junit.Test;
-import ru.vmsoftware.events.TestUtils;
-
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicReference;
-
-import static org.fest.assertions.api.Assertions.assertThat;
-
 /**
  * @author Vyacheslav Mayorov
  * @since 2013-26-09
  */
 public class ConcurrentOpenLinkedQueueTest {
-
+/*
 
     private boolean simpleBoolean = false;
 
@@ -203,4 +193,6 @@ public class ConcurrentOpenLinkedQueueTest {
 
 
     }
+
+    */
 }
