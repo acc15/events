@@ -1,14 +1,10 @@
 package ru.vmsoftware.events.collections;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import ru.vmsoftware.events.TestUtils;
 
 import java.util.*;
-import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -33,7 +29,7 @@ public class ConcurrentOpenLinkedQueueTest {
     }
 
     @Test
-    public void testConsecutiveRemoval() throws Exception {
+    public void testParallelRemoval() throws Exception {
 
         final int runTimes = 100;
         final int sequenceSize = 150;
@@ -85,7 +81,7 @@ public class ConcurrentOpenLinkedQueueTest {
     }
 
     @Test
-    public void testAppendDontMissSomething() throws Exception {
+    public void testAddDontMissSomething() throws Exception {
 
         final int addCount = 50;
         final int threadCount = 150;
@@ -121,26 +117,26 @@ public class ConcurrentOpenLinkedQueueTest {
 
     }
 
-    @Test @Ignore
-    public void testOutOfMemory() throws Exception {
-        final TestConcurrentQueue<Integer> q = new TestConcurrentQueue<Integer>();
-        final Runtime runtime = Runtime.getRuntime();
-        final long wasMemory = runtime.freeMemory();
-        for (int i=0; i<100; i++) {
-            for (int j=0; j<10000; j++) {
-                q.add(j);
-            }
-            q.clear();
-        }
-        final long remainsMemory = runtime.freeMemory();
-        assertThat(wasMemory - remainsMemory).isLessThan(1000000);
-    }
+//    @Test @Ignore
+//    public void testOutOfMemory() throws Exception {
+//        final TestConcurrentQueue<Integer> q = new TestConcurrentQueue<Integer>();
+//        final Runtime runtime = Runtime.getRuntime();
+//        final long wasMemory = runtime.freeMemory();
+//        for (int i=0; i<100; i++) {
+//            for (int j=0; j<10000; j++) {
+//                q.add(j);
+//            }
+//            q.clear();
+//        }
+//        final long remainsMemory = runtime.freeMemory();
+//        assertThat(wasMemory - remainsMemory).isLessThan(1000000);
+//    }
 
     @Test
-    public void testRemoveLastAppend() throws Exception {
+    public void testAddAndRemove() throws Exception {
 
-        final int runTimes = 50;
-        final int threadCount = 25;
+        final int runTimes = 100;
+        final int threadCount = 50;
 
         for (int r=0;r<runTimes;r++) {
 
@@ -153,8 +149,6 @@ public class ConcurrentOpenLinkedQueueTest {
             final AtomicInteger appendStarted = new AtomicInteger();
             final AtomicInteger removeStarted = new AtomicInteger();
             final AtomicInteger removeCount = new AtomicInteger();
-
-
             final TestConcurrentQueue<Integer> queue = new TestConcurrentQueue<Integer>();
 
             for (int i=0;i<threadCount;i++) {
@@ -165,10 +159,12 @@ public class ConcurrentOpenLinkedQueueTest {
                         for (;;) {
                             final SimpleIterator<Integer> iter = queue.iterator();
                             if (iter.next() != null && iter.remove()) {
-                                removeCount.incrementAndGet();
                                 break;
                             }
+                            Thread.yield(); // Note that 'yield'. Without this thread will eat resources without giving other threads to proceed
+                            // (which may be an appending thread)
                         }
+                        removeCount.incrementAndGet();
                         latch.countDown();
                     }
                 }).start();

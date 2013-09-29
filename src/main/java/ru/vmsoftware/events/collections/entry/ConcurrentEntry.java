@@ -5,7 +5,5 @@ package ru.vmsoftware.events.collections.entry;
  * @since 2013-29-09
  */
 public interface ConcurrentEntry<E extends ConcurrentEntry<E>> extends Entry<E> {
-
-    boolean isMarker();
     boolean casNext(E expected, E update);
 }

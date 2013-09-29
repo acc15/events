@@ -34,14 +34,14 @@ public class ConcurrentOpenLinkedQueue<E extends ConcurrentEntry<E>> implements 
         tail.setPrev(head);
     }
 
-    public void add(E value) {
-        value.setNext(tail);
+    public void add(E entry) {
+        entry.setNext(tail);
         E prev;
         do {
             prev = findPreviousNonDeletedEntry(tail);
-            value.setPrev(prev);
-        } while (!prev.casNext(tail, value));
-        tail.setPrev(value);
+        } while (!prev.casNext(tail, entry));
+        entry.setPrev(prev);
+        tail.setPrev(entry);
     }
 
     public boolean remove(E value) {
@@ -66,7 +66,6 @@ public class ConcurrentOpenLinkedQueue<E extends ConcurrentEntry<E>> implements 
         while (!EntryUtils.isHead(prev)) {
             final E found = findEntryPointingTo(prev, entry);
             if (found != null) {
-                entry.setPrev(found);
                 return found;
             }
             prev = prev.getPrev();
@@ -76,12 +75,12 @@ public class ConcurrentOpenLinkedQueue<E extends ConcurrentEntry<E>> implements 
 
     private static <E extends ConcurrentEntry<E>> E findEntryPointingTo(final E start, final E target) {
         E entry = start;
-        while (entry != target) {
-            E next = entry.getNext();
-            if (next == target) {
+        while (!EntryUtils.isTail(entry)) {
+            final E next = findNextNonDeletedEntry(entry);
+            if (next == target && !EntryUtils.isDeleted(entry)) {
                 return entry;
             }
-            entry = EntryUtils.isMarker(next) ? next.getNext() : next;
+            entry = next;
         }
         return null;
     }

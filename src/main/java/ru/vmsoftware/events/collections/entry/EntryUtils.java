@@ -7,16 +7,15 @@ package ru.vmsoftware.events.collections.entry;
 public class EntryUtils {
 
     public static boolean isMarker(ConcurrentEntry<?> e) {
-        return e.isMarker();
+        return e.getPrev() == e;
+    }
+
+    public static <E extends ConcurrentEntry<E>> E nonMarker(E e) {
+        return isMarker(e) ? e.getNext() : e;
     }
 
     public static <E extends ConcurrentEntry<E>> E nextNonMarker(E e) {
-        final E next = e.getNext();
-        if (isMarker(next)) {
-            return next.getNext();
-        } else {
-            return next;
-        }
+        return nonMarker(e.getNext());
     }
 
     public static boolean isHead(Entry<?> e) {
@@ -27,4 +26,7 @@ public class EntryUtils {
         return e.getNext() == null;
     }
 
+    public static boolean isDeleted(ConcurrentEntry<?> e) {
+        return isMarker(e.getNext());
+    }
 }

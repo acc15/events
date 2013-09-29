@@ -13,8 +13,8 @@ import ru.vmsoftware.events.collections.entry.SimpleConcurrentEntry;
 class TestConcurrentQueue<T> implements SimpleQueue<T> {
 
     private static class TestEntry<T> extends SimpleConcurrentEntry<TestEntry<T>> {
-        TestEntry(boolean marker) {
-            super(marker);
+
+        TestEntry() {
             this.value = null;
         }
 
@@ -32,7 +32,7 @@ class TestConcurrentQueue<T> implements SimpleQueue<T> {
     private static class TestEntryFactory<T> extends AbstractEntryFactory<TestEntry<T>> {
         @Override
         protected TestEntry<T> createEntry(boolean marker) {
-            return new TestEntry<T>(marker);
+            return new TestEntry<T>();
         }
 
         @Override

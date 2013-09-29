@@ -17,6 +17,7 @@ public abstract class AbstractEntryFactory<E extends Entry<E>> implements EntryF
 
     public E createMarker(E next) {
         final E entry = createEntry(true);
+        entry.setPrev(entry);
         entry.setNext(next);
         return entry;
     }
