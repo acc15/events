@@ -33,8 +33,8 @@ class ListenerEntry extends SimpleConcurrentEntry<ListenerEntry> implements Weak
         }
 
         @Override
-        protected ListenerEntry createEntry() {
-            return new ListenerEntry();
+        protected ListenerEntry createEntry(boolean marker) {
+            return new ListenerEntry(marker);
         }
     }
 
@@ -65,8 +65,9 @@ class ListenerEntry extends SimpleConcurrentEntry<ListenerEntry> implements Weak
 
     final Header header;
 
-    ListenerEntry() {
-        this(null);
+    ListenerEntry(boolean marker) {
+        super(marker);
+        this.header = null;
     }
 
     ListenerEntry(Header header) {

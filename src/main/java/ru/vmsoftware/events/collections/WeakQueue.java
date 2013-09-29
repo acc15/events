@@ -19,7 +19,11 @@ public class WeakQueue<T> implements SimpleQueue<T> {
 
         private Reference<T> ref;
 
-        private WeakEntry() {
+        WeakEntry() {
+        }
+
+        WeakEntry(boolean marker) {
+            super(marker);
         }
 
         public void setRef(Reference<T> ref) {
@@ -27,7 +31,7 @@ public class WeakQueue<T> implements SimpleQueue<T> {
         }
 
         public List<Reference<T>> getReferences() {
-            return ref != null ? Collections.singletonList(ref) : Collections.<Reference<T>>emptyList();
+            return Collections.singletonList(ref);
         }
     }
 
@@ -43,8 +47,8 @@ public class WeakQueue<T> implements SimpleQueue<T> {
         }
 
         @Override
-        protected WeakEntry<T> createEntry() {
-            return new WeakEntry<T>();
+        protected WeakEntry<T> createEntry(boolean marker) {
+            return new WeakEntry<T>(marker);
         }
     }
 

@@ -1,10 +1,15 @@
 package ru.vmsoftware.events.collections;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import ru.vmsoftware.events.TestUtils;
 
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -82,10 +87,11 @@ public class ConcurrentOpenLinkedQueueTest {
     @Test
     public void testAppendDontMissSomething() throws Exception {
 
-        final int addCount = 150;
+        final int addCount = 50;
         final int threadCount = 150;
 
         final CyclicBarrier barrier = new CyclicBarrier(threadCount);
+        final CountDownLatch latch = new CountDownLatch(threadCount);
 
         final TestConcurrentQueue<Integer> queue = new TestConcurrentQueue<Integer>();
         for (int i=0; i<threadCount; i++) {
@@ -98,33 +104,96 @@ public class ConcurrentOpenLinkedQueueTest {
                     for (int i=0; i<addCount; i++) {
                         queue.add(t*addCount+i);
                     }
+                    latch.countDown();
                 }
             }).start();
         }
+
+        latch.await();
 
         final Set<Integer> expectedValues = new HashSet<Integer>();
         for (int i=0; i<threadCount*addCount; i++) {
             expectedValues.add(i);
         }
 
-
         assertThat(TestUtils.makeIterable(queue)).containsAll(expectedValues);
         System.out.println("FINISH: " + new Date());
 
     }
 
+    @Test @Ignore
+    public void testOutOfMemory() throws Exception {
+        final TestConcurrentQueue<Integer> q = new TestConcurrentQueue<Integer>();
+        final Runtime runtime = Runtime.getRuntime();
+        final long wasMemory = runtime.freeMemory();
+        for (int i=0; i<100; i++) {
+            for (int j=0; j<10000; j++) {
+                q.add(j);
+            }
+            q.clear();
+        }
+        final long remainsMemory = runtime.freeMemory();
+        assertThat(wasMemory - remainsMemory).isLessThan(1000000);
+    }
+
     @Test
     public void testRemoveLastAppend() throws Exception {
 
-        final int runTimes = 100;
+        final int runTimes = 50;
+        final int threadCount = 25;
 
         for (int r=0;r<runTimes;r++) {
 
+            System.out.println("RUN TIME:" + r);
+
+            final CyclicBarrier barrier = new CyclicBarrier(threadCount*2);
+            final CountDownLatch latch = new CountDownLatch(threadCount*2);
+
+            final AtomicInteger appendCount = new AtomicInteger();
+            final AtomicInteger appendStarted = new AtomicInteger();
+            final AtomicInteger removeStarted = new AtomicInteger();
+            final AtomicInteger removeCount = new AtomicInteger();
 
 
+            final TestConcurrentQueue<Integer> queue = new TestConcurrentQueue<Integer>();
+
+            for (int i=0;i<threadCount;i++) {
+                new Thread(new Runnable() {
+                    public void run() {
+                        waitBarrier(barrier);
+                        removeStarted.incrementAndGet();
+                        for (;;) {
+                            final SimpleIterator<Integer> iter = queue.iterator();
+                            if (iter.next() != null && iter.remove()) {
+                                removeCount.incrementAndGet();
+                                break;
+                            }
+                        }
+                        latch.countDown();
+                    }
+                }).start();
+            }
+            for (int i=0;i<threadCount;i++) {
+                new Thread(new Runnable() {
+                    public void run() {
+                        waitBarrier(barrier);
+                        appendStarted.incrementAndGet();
+                        queue.add(100);
+                        appendCount.incrementAndGet();
+                        latch.countDown();
+                    }
+                }).start();
+            }
+            latch.await(10, TimeUnit.SECONDS);
+
+            System.out.println("Append started: " + appendStarted + "; Remove started: " + removeStarted +
+                    "; Append finished: " + appendCount + "; Remove finished: " + removeCount);
+
+            assertThat(appendStarted.get()).as("appendStarted").isEqualTo(threadCount);
+            assertThat(removeStarted.get()).as("removeStarted").isEqualTo(threadCount);
+            assertThat(appendCount.get()).as("appendCount").isEqualTo(threadCount);
+            assertThat(removeCount.get()).as("removeCount").isEqualTo(threadCount);
+            assertThat(queue.isEmpty()).isTrue();
         }
-
-
-
     }
 }

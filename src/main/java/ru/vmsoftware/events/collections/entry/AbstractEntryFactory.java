@@ -6,18 +6,17 @@ package ru.vmsoftware.events.collections.entry;
  */
 public abstract class AbstractEntryFactory<E extends Entry<E>> implements EntryFactory<E> {
 
-    protected abstract E createEntry();
+    protected abstract E createEntry(boolean marker);
 
     public E createEntry(E prev, E next) {
-        final E entry = createEntry();
+        final E entry = createEntry(false);
         entry.setPrev(prev);
         entry.setNext(next);
         return entry;
     }
 
     public E createMarker(E next) {
-        final E entry = createEntry();
-        entry.setPrev(entry);
+        final E entry = createEntry(true);
         entry.setNext(next);
         return entry;
     }

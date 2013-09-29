@@ -5,6 +5,9 @@ import ru.vmsoftware.events.collections.entry.EntryFactory;
 import ru.vmsoftware.events.collections.entry.EntryUtils;
 
 /**
+ * Marker idea taken from
+ * <a href="http://www.java2s.com/Code/Java/Collections-Data-Structure/ConcurrentDoublyLinkedList.htm">here</a>.
+ * Prev pointers may lag.
  * @author Vyacheslav Mayorov
  * @since 2013-25-09
  */
@@ -35,7 +38,7 @@ public class ConcurrentOpenLinkedQueue<E extends ConcurrentEntry<E>> implements 
         value.setNext(tail);
         E prev;
         do {
-            prev = tail.getPrev();
+            prev = findPreviousNonDeletedEntry(tail);
             value.setPrev(prev);
         } while (!prev.casNext(tail, value));
         tail.setPrev(value);
@@ -58,42 +61,78 @@ public class ConcurrentOpenLinkedQueue<E extends ConcurrentEntry<E>> implements 
         return true;
     }
 
+    private static <E extends ConcurrentEntry<E>> E findPreviousNonDeletedEntry(final E entry) {
+        E prev = entry.getPrev();
+        while (!EntryUtils.isHead(prev)) {
+            final E found = findEntryPointingTo(prev, entry);
+            if (found != null) {
+                entry.setPrev(found);
+                return found;
+            }
+            prev = prev.getPrev();
+        }
+        return prev;
+    }
+
+    private static <E extends ConcurrentEntry<E>> E findEntryPointingTo(final E start, final E target) {
+        E entry = start;
+        while (entry != target) {
+            E next = entry.getNext();
+            if (next == target) {
+                return entry;
+            }
+            entry = EntryUtils.isMarker(next) ? next.getNext() : next;
+        }
+        return null;
+    }
+
+    private static <E extends ConcurrentEntry<E>> E findNextNonDeletedEntry(final E entry) {
+        final E expectedNext = EntryUtils.nextNonMarker(entry);
+        E next = expectedNext;
+        while (!EntryUtils.isTail(next)) {
+            final E nextNext = next.getNext();
+            if (!EntryUtils.isMarker(nextNext)) {
+                if (entry.casNext(expectedNext, next)) {
+                    next.setPrev(entry);
+                }
+                return next;
+            }
+            next = nextNext.getNext();
+        }
+        return next;
+    }
+
+    private static <E extends ConcurrentEntry<E>> E findNextEntry(final E entry) {
+        final E found = findNextNonDeletedEntry(entry);
+        return EntryUtils.isTail(found) ? null : found;
+    }
+
+    private class ConcurrentIterator implements SimpleIterator<E> {
+
+        private E entry;
+
+        private ConcurrentIterator() {
+            this.entry = head;
+        }
+
+        public E next() {
+            if (entry == null) {
+                throw new IllegalStateException("no more items available");
+            }
+            entry = findNextEntry(entry);
+            return entry;
+        }
+
+        public boolean remove() {
+            if (EntryUtils.isHead(entry)) {
+                throw new IllegalStateException("call next before calling remove");
+            }
+            return ConcurrentOpenLinkedQueue.this.remove(entry);
+        }
+    }
+
     public SimpleIterator<E> iterator() {
-        return new SimpleIterator<E>() {
-
-            private E entry = head;
-
-            public E next() {
-                if (entry == null) {
-                    throw new IllegalStateException("no more items available");
-                }
-                E next = EntryUtils.nextNonMarker(entry);
-                for (;;) {
-                    if (EntryUtils.isTail(next)) {
-                        entry = null;
-                        return null;
-                    }
-                    final E nextNext = next.getNext();
-                    if (!EntryUtils.isMarker(nextNext)) {
-                        if (!EntryUtils.isDeleted(entry)) {
-                            next.setPrev(entry);
-                        }
-                        entry = next;
-                        return entry;
-                    }
-                    final E nextNextNext = nextNext.getNext();
-                    entry.casNext(next, nextNextNext);
-                    next = nextNextNext;
-                }
-            }
-
-            public boolean remove() {
-                if (EntryUtils.isHead(entry)) {
-                    throw new IllegalStateException("call next before calling remove");
-                }
-                return ConcurrentOpenLinkedQueue.this.remove(entry);
-            }
-        };
+        return new ConcurrentIterator();
     }
 
     @Override

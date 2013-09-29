@@ -10,6 +10,19 @@ public class SimpleConcurrentEntry<E extends ConcurrentEntry<E>> implements Conc
 
     final AtomicReference<E> prev = new AtomicReference<E>();
     final AtomicReference<E> next = new AtomicReference<E>();
+    final boolean marker;
+
+    public SimpleConcurrentEntry() {
+        this(false);
+    }
+
+    public SimpleConcurrentEntry(boolean marker) {
+        this.marker = marker;
+    }
+
+    public boolean isMarker() {
+        return marker;
+    }
 
     public E getPrev() {
         return prev.get();

@@ -2,7 +2,7 @@ package ru.vmsoftware.events.collections;
 
 import org.apache.commons.lang.ObjectUtils;
 import ru.vmsoftware.events.collections.entry.AbstractEntryFactory;
-import ru.vmsoftware.events.collections.entry.Entry;
+import ru.vmsoftware.events.collections.entry.ConcurrentEntry;
 import ru.vmsoftware.events.collections.entry.EntryUtils;
 import ru.vmsoftware.events.collections.entry.SimpleConcurrentEntry;
 
@@ -13,11 +13,12 @@ import ru.vmsoftware.events.collections.entry.SimpleConcurrentEntry;
 class TestConcurrentQueue<T> implements SimpleQueue<T> {
 
     private static class TestEntry<T> extends SimpleConcurrentEntry<TestEntry<T>> {
-        private TestEntry() {
-            this(null);
+        TestEntry(boolean marker) {
+            super(marker);
+            this.value = null;
         }
 
-        private TestEntry(T value) {
+        TestEntry(T value) {
             this.value = value;
         }
 
@@ -30,8 +31,8 @@ class TestConcurrentQueue<T> implements SimpleQueue<T> {
 
     private static class TestEntryFactory<T> extends AbstractEntryFactory<TestEntry<T>> {
         @Override
-        protected TestEntry<T> createEntry() {
-            return new TestEntry<T>();
+        protected TestEntry<T> createEntry(boolean marker) {
+            return new TestEntry<T>(marker);
         }
 
         @Override
@@ -75,22 +76,25 @@ class TestConcurrentQueue<T> implements SimpleQueue<T> {
         return false;
     }
 
+    private class TestIterator implements SimpleIterator<T> {
+        public T next() {
+            final TestEntry<T> entry = iter.next();
+            if (entry == null) {
+                return null;
+            }
+            return entry.getValue();
+        }
+
+        public boolean remove() {
+            return iter.remove();
+        }
+
+        private SimpleIterator<TestEntry<T>> iter = entryQueue.iterator();
+
+    }
+
     public SimpleIterator<T> iterator() {
-        return new SimpleIterator<T>() {
-            public T next() {
-                final TestEntry<T> entry = iter.next();
-                if (entry == null) {
-                    return null;
-                }
-                return entry.getValue();
-            }
-
-            public boolean remove() {
-                return iter.remove();
-            }
-
-            private SimpleIterator<TestEntry<T>> iter = entryQueue.iterator();
-        };
+        return new TestIterator();
     }
 
     public static class ListReport {
@@ -108,7 +112,7 @@ class TestConcurrentQueue<T> implements SimpleQueue<T> {
         }
     }
 
-    public static <E extends Entry<E>> ListReport reportDeadNodes(E e) {
+    public static <E extends ConcurrentEntry<E>> ListReport reportDeadNodes(E e) {
         ListReport report = new ListReport();
         for (;;) {
             final E next = e.getNext();

@@ -6,15 +6,11 @@ package ru.vmsoftware.events.collections.entry;
  */
 public class EntryUtils {
 
-    public static boolean isDeleted(Entry<?> e) {
-        return isMarker(e.getNext());
+    public static boolean isMarker(ConcurrentEntry<?> e) {
+        return e.isMarker();
     }
 
-    public static boolean isMarker(Entry<?> e) {
-        return e.getPrev() == e;
-    }
-
-    public static <E extends Entry<E>> E nextNonMarker(E e) {
+    public static <E extends ConcurrentEntry<E>> E nextNonMarker(E e) {
         final E next = e.getNext();
         if (isMarker(next)) {
             return next.getNext();
