@@ -59,6 +59,15 @@ public class ConcurrentOpenLinkedQueue<E extends ConcurrentEntry<E>> implements 
         return true;
     }
 
+    public SimpleIterator<E> iterator() {
+        return new ConcurrentIterator();
+    }
+
+    @Override
+    public String toString() {
+        return SimpleQueueUtils.toString(this);
+    }
+
     private static <E extends ConcurrentEntry<E>> E findPreviousNonDeletedEntry(final E entry) {
         E prev = entry.getPrev();
         while (!EntryUtils.isHead(prev)) {
@@ -128,12 +137,4 @@ public class ConcurrentOpenLinkedQueue<E extends ConcurrentEntry<E>> implements 
         }
     }
 
-    public SimpleIterator<E> iterator() {
-        return new ConcurrentIterator();
-    }
-
-    @Override
-    public String toString() {
-        return SimpleQueueUtils.toString(this);
-    }
 }

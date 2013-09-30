@@ -123,10 +123,6 @@ class DefaultEventManager extends AbstractRegistrar implements EventManager {
                 createFilterByObject(type),
                 listener);
         final ListenerEntry entry = new ListenerEntry(header);
-        final WeakOpenQueueReferenceManager<ListenerEntry> referenceManager = new
-                WeakOpenQueueReferenceManager<ListenerEntry>(queue, entry);
-        header.initReferences(referenceManager);
-        header.setReferences(referenceManager.getReferences());
         queue.add(entry);
         return entry;
     }
@@ -149,7 +145,7 @@ class DefaultEventManager extends AbstractRegistrar implements EventManager {
         }
     }
 
-    WeakOpenQueue<Object, ListenerEntry> queue = new WeakOpenQueue<Object, ListenerEntry>(
+    SimpleQueue<ListenerEntry> queue = new WeakOpenQueue<ListenerEntry>(
         new ConcurrentOpenLinkedQueue<ListenerEntry>(ListenerEntry.ListenerEntryFactory.getInstance())
     );
 }

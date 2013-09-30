@@ -4,9 +4,12 @@ import org.apache.commons.lang.ObjectUtils;
 import ru.vmsoftware.events.collections.entry.AbstractEntryFactory;
 import ru.vmsoftware.events.collections.entry.SimpleConcurrentEntry;
 import ru.vmsoftware.events.collections.entry.WeakContainer;
+import ru.vmsoftware.events.providers.Provider;
+import ru.vmsoftware.events.providers.Providers;
+import ru.vmsoftware.events.references.ManagementType;
+import ru.vmsoftware.events.references.ReferenceManager;
 
 import java.lang.ref.Reference;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -15,16 +18,36 @@ import java.util.List;
  */
 public class WeakQueue<T> implements SimpleQueue<T> {
 
-    private static class WeakEntry<T> extends SimpleConcurrentEntry<WeakEntry<T>> implements WeakContainer<T> {
+    private static class WeakEntry<T> extends SimpleConcurrentEntry<WeakEntry<T>> implements WeakContainer {
 
-        private Reference<T> ref;
+        private List<Reference<?>> refs = null;
+        private Provider<T> valueProvider;
 
-        public void setRef(Reference<T> ref) {
-            this.ref = ref;
+        private WeakEntry() {
         }
 
-        public List<Reference<T>> getReferences() {
-            return Collections.singletonList(ref);
+        private WeakEntry(T valueProvider) {
+            this.valueProvider = Providers.strongRef(valueProvider);
+        }
+
+        @SuppressWarnings("unchecked")
+        public T getValue() {
+            if (valueProvider == null) {
+                throw new IllegalStateException("attempt to obtain value from service entry");
+            }
+            return valueProvider.get();
+        }
+
+        public void initReferences(ReferenceManager referenceManager) {
+            valueProvider = referenceManager.manage(valueProvider, ManagementType.CONTAINER);
+        }
+
+        public void setReferences(List<Reference<?>> refs) {
+            this.refs = refs;
+        }
+
+        public List<Reference<?>> getReferences() {
+            return refs;
         }
     }
 
@@ -45,7 +68,7 @@ public class WeakQueue<T> implements SimpleQueue<T> {
         }
     }
 
-    private WeakOpenQueue<T, WeakEntry<T>> queue = new WeakOpenQueue<T, WeakEntry<T>>(
+    private WeakOpenQueue<WeakEntry<T>> queue = new WeakOpenQueue<WeakEntry<T>>(
             new ConcurrentOpenLinkedQueue<WeakEntry<T>>(WeakEntryFactory.<T>getInstance()));
 
     public boolean isEmpty() {
@@ -57,17 +80,14 @@ public class WeakQueue<T> implements SimpleQueue<T> {
     }
 
     public void add(T value) {
-        final WeakEntry<T> entry = new WeakEntry<T>();
-        final Reference<T> ref = queue.createReference(entry, value);
-        entry.setRef(ref);
-        queue.add(entry);
+        queue.add(new WeakEntry<T>(value));
     }
 
     public boolean remove(T value) {
         WeakEntry<T> e;
         final SimpleIterator<WeakEntry<T>> iter = queue.iterator();
         while ((e = iter.next()) != null) {
-            if (ObjectUtils.equals(e.ref.get(), value)) {
+            if (ObjectUtils.equals(e.getValue(), value)) {
                 return true;
             }
         }
@@ -84,7 +104,7 @@ public class WeakQueue<T> implements SimpleQueue<T> {
                 if (e == null) {
                     return null;
                 }
-                return e.ref.get();
+                return e.getValue();
             }
 
             public boolean remove() {
